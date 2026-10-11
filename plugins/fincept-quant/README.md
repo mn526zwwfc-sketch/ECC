@@ -23,13 +23,27 @@ securities.
 | Piece | Contents |
 |-------|----------|
 | MCP server `fincept-quant` | `search_strategies`, `get_strategy`, `evaluate_decision`, `compare_strategies`, `breakeven_points`, `deflated_sharpe`, `haircut_sharpe`, `min_backtest_length`, `cost_drag`, `horizon_risk`, `kelly`, `repo_modules` |
-| Agents | `fincept-strategy-analyst` (what the evidence says, what fits a profile), `fincept-backtest-auditor` (overfitting, costs and decay in a backtest claim), `fincept-engine-developer` (changing the engine safely) |
-| Skills | `quant-evidence-method`, `quant-stats-toolkit`, `fincept-engine-development` |
-| Commands | `/fincept-evaluate`, `/fincept-compare`, `/fincept-breakeven`, `/fincept-strategy` |
+| Agents | `fincept-strategy-analyst` (what the evidence says, what fits a profile), `fincept-backtest-auditor` (overfitting, costs and decay in a backtest claim, including PBO and MinTRL on the user's data), `fincept-market-data` (prices from Yahoo, Alpha Vantage or the user's files, as clean return tables), `fincept-signals-analyst` (Congress and insider trades, lobbying, contracts, and what the evidence says about following them), `fincept-research-curator` (verified updates to the evidence base), `fincept-engine-developer` (changing the engine safely) |
+| Skills | `fincept-investment-playbook` (shared by every agent: product map, data sources and limits, evidence, thresholds, guardrails, lessons learned), `quant-evidence-method`, `quant-stats-toolkit`, `fincept-engine-development` |
+| Commands | `/fincept-committee` (runs the agents in parallel and writes one memo), `/fincept-signals`, `/fincept-evaluate`, `/fincept-compare`, `/fincept-breakeven`, `/fincept-strategy` |
 | Hooks | SessionStart checks the engine path; PostToolUse reminds about the Python/JavaScript parity rule after engine edits |
 
 The MCP server is part of FinceptTerminal (`quant_evidence/mcp_server.py`).
 It uses only the Python standard library, so it needs no `pip install`.
+
+## Data sources
+
+| Source | Used for | Notes |
+|--------|----------|-------|
+| Yahoo Finance | Monthly adjusted prices (US, BMV `.MX`, indices `^MXX`, currencies `USDMXN=X`) | `quant_evidence/app/yahoo_sync.py`; a scheduled task stores them in the Laboratorio Fincept page database every weekday. Unofficial endpoint, personal use |
+| Alpha Vantage connector | Prices as a fallback, Congress trades, insider trades | Free plan: 25 calls a day, 1 per second |
+| Quiver Quant connector | Congress and insider trades, lobbying, federal contracts | Needs at least the Hobbyist subscription |
+| The user's files | Backtests and variant tables | `node quant_evidence/web/series_cli.js file.csv` |
+
+The MCP tool names in the agents' `tools` lists follow how these connectors
+appear in claude.ai sessions (`mcp__Alpha_Vantage_MCP_Server__*`,
+`mcp__Quiver_Quant__*`). Google Finance history and Apple Stocks have no API
+the agents can use.
 
 ## Setup
 
@@ -64,6 +78,8 @@ Python 3.10 or newer must be on the `PATH` as `python3`.
 /fincept-evaluate momentum, Sharpe 1.2 over 8 years, 50 variants tried, monthly data
 /fincept-compare 25 years old, retail, Mexico, 30-year horizon
 /fincept-breakeven value long-short, 60% monthly turnover
+/fincept-signals NVDA
+/fincept-committee my momentum backtest in /tmp/backtest.csv, 40 variants tried
 ```
 
 You can also ask in plain language. The agents pick the right tools, and every
