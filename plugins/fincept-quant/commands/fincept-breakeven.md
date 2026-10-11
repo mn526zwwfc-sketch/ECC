@@ -20,10 +20,11 @@ Show how much trading cost and turnover a strategy can absorb before its expecte
    ```
 
    On engines without `breakeven`: run `evaluate` with the same fields, take the `monthly_bps` of the last cascade stage before "Neto de costos" as the pre-cost edge, and call `cost_drag` with it as `gross_monthly_bps` plus the user's turnover and `long_short`; `breakeven_roundtrip_cost_bps` is the break-even cost.
+   Then run `evaluate_decision` (CLI `evaluate`) with the same fields: its `cascade` is the gross-to-net path used in the answer.
 4. **Handle the no-edge case.** If the tool says the strategy has no measurable edge in bps (buy and hold, contributions, rebalancing), explain that it is judged on evidence and context, not on a cost break-even, and stop.
 5. **Answer** in the user's language:
    - Current round-trip cost and turnover (from the tool's resolved inputs) next to the break-even values.
-   - The cascade from gross to net, so the user sees where the edge goes before costs.
+   - The cascade from gross to net (from `evaluate_decision`), so the user sees where the edge goes before costs.
    - Practical reading: the margin between current and break-even cost, the 50% monthly turnover frontier, two legs for long-short, the 1.5x default cost in Mexico.
    - One line: educational material, not personalized financial advice.
 

@@ -16,7 +16,7 @@ Rank alternatives for one investor profile with the same evaluator and inputs.
    - `market`: `mx`, `us`, `global` or `other` (default `global`, or `mx` if the user writes about Mexico)
    - `investor`: `retail` (default) or `institutional`
    - an optional strategy the user wants to locate; resolve it to an id with `search_strategies` (CLI `search`, or `strategies` on older engines)
-   - an optional count `top` (default 5, at most 10)
+   - an optional count `top` (the tool returns 10 by default)
 
    State any default you applied in one line.
 2. **Rank** with the `compare_strategies` MCP tool (name ending in `__compare_strategies`), passing the profile, `top` and the optional `strategy_id`. CLI fallback:
