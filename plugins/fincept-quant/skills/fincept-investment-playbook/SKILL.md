@@ -91,8 +91,8 @@ guarantee; terms limit it to personal use).
   - Borrow fees: 162 anomalies earn 0.14% a month before short-sale costs and -0.01% after (Muravyev, Pearson and Pollet 2025).
   - Smart beta: about +3% a year on paper, -0.5% to -1% after the ETF launches (Huang, Song and Xiang 2024).
   - Data-mined and peer-reviewed signals keep about 50% of their predictability after the original sample (Chen, Lopez-Lira and Zimmermann, WP).
-  - Congress: copying purchases earned +55 to +85 bp a month before the 2012 STOCK Act, measured from the trade date; for 2012-2020 House purchases are 26 bp below at six months (Belmont et al. 2022). `congress_copy` scores 29/100.
-  - Insiders: opportunistic trades earn about 82 bp a month value-weighted, routine trades about zero (Cohen, Malloy and Pomorski 2012); the edge sits in purchases and small firms and has weakened. `insider_purchases` scores 29/100.
+  - Congress: copying purchases earned +55 to +85 bp a month before the 2012 STOCK Act, measured from the trade date; for 2012-2020 House purchases are 26 bp below at six months (Belmont et al. 2022). The evaluator scores `congress_copy` 29/100 (`no_respaldada`); its evidence prior (`prior.score`) is 8.
+  - Insiders: opportunistic trades earn about 82 bp a month value-weighted, routine trades about zero (Cohen, Malloy and Pomorski 2012); the edge sits in purchases and small firms and has weakened. The evaluator scores `insider_purchases` 29/100 (`no_respaldada`); its evidence prior is 18.
   - NANC (Democratic members) and GOP (Republican members, formerly KRUZ) have traded since 2023-02-07: under four years of live record.
   - No verifiable 2023-2026 paper on Mexican factors or calendar effects was found.
 

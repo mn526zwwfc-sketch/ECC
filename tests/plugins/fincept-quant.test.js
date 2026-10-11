@@ -192,6 +192,28 @@ test('session-start hook is silent when the engine is present', () => {
   }
 });
 
+test('every agent cites the shared playbook', () => {
+  for (const file of markdownFiles('agents')) {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.ok(text.includes('fincept-investment-playbook'), `${path.basename(file)} does not cite fincept-investment-playbook`);
+  }
+});
+
+test('the committee command only calls agents that exist', () => {
+  const agents = markdownFiles('agents').map(f => path.basename(f, '.md'));
+  const text = fs.readFileSync(path.join(pluginRoot, 'commands', 'fincept-committee.md'), 'utf8');
+  const named = [...new Set(text.match(/fincept-[a-z-]+/g) || [])].filter(n => n.endsWith('analyst') || n.endsWith('auditor') || n.endsWith('data') || n.endsWith('curator') || n.endsWith('developer'));
+  assert.ok(named.length >= 3, 'committee names fewer than 3 agents');
+  for (const n of named) assert.ok(agents.includes(n), `committee names unknown agent ${n}`);
+});
+
+test('the playbook lists the engine CLI commands agents rely on', () => {
+  const text = fs.readFileSync(path.join(pluginRoot, 'skills', 'fincept-investment-playbook', 'SKILL.md'), 'utf8');
+  for (const cmd of ['evaluate', 'search', 'compare', 'breakeven', 'series_cli.js', 'yahoo_sync']) {
+    assert.ok(text.includes(cmd), `playbook does not mention ${cmd}`);
+  }
+});
+
 console.log(`\nPassed: ${passed}`);
 console.log(`Failed: ${failed}`);
 process.exit(failed > 0 ? 1 : 0);
