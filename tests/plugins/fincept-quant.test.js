@@ -1,0 +1,197 @@
+/**
+ * Tests for plugins/fincept-quant (the FinceptTerminal quant-evidence plugin):
+ *   - plugin manifest, MCP config and marketplace entry
+ *   - agent, skill and command Markdown formats
+ *   - the session-start and post-edit hooks
+ *
+ * Run with: node tests/run-all.js
+ */
+
+'use strict';
+
+const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+const repoRoot = path.resolve(__dirname, '..', '..');
+const pluginRoot = path.join(repoRoot, 'plugins', 'fincept-quant');
+const hookScript = path.join(pluginRoot, 'scripts', 'fincept-hooks.js');
+
+let passed = 0;
+let failed = 0;
+
+function test(name, fn) {
+  try {
+    fn();
+    console.log(`  ✓ ${name}`);
+    passed++;
+  } catch (err) {
+    console.log(`  ✗ ${name}`);
+    console.log(`    Error: ${err.message}`);
+    failed++;
+  }
+}
+
+function readJson(rel) {
+  return JSON.parse(fs.readFileSync(path.join(pluginRoot, rel), 'utf8'));
+}
+
+function frontmatter(filePath) {
+  const text = fs.readFileSync(filePath, 'utf8');
+  const match = text.match(/^---\n([\s\S]*?)\n---\n/);
+  assert.ok(match, `${path.relative(repoRoot, filePath)} has no YAML frontmatter`);
+  const fields = {};
+  for (const line of match[1].split('\n')) {
+    const kv = line.match(/^([A-Za-z-]+):\s*(.*)$/);
+    if (kv) fields[kv[1]] = kv[2];
+  }
+  return { fields, body: text.slice(match[0].length) };
+}
+
+function markdownFiles(dir) {
+  return fs.readdirSync(path.join(pluginRoot, dir))
+    .filter(name => name.endsWith('.md'))
+    .map(name => path.join(pluginRoot, dir, name));
+}
+
+function runHook(mode, { input = '', env = {} } = {}) {
+  const childEnv = { ...process.env, ...env };
+  if (env.FINCEPT_ANALYTICS_DIR === undefined) delete childEnv.FINCEPT_ANALYTICS_DIR;
+  return spawnSync(process.execPath, [hookScript, mode], { input, env: childEnv, encoding: 'utf8' });
+}
+
+console.log('\n=== Testing plugins/fincept-quant ===\n');
+
+test('plugin.json has name and version and no agents field', () => {
+  const manifest = readJson('.claude-plugin/plugin.json');
+  assert.strictEqual(manifest.name, 'fincept-quant');
+  assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
+  assert.ok(!('agents' in manifest), 'agents field is rejected by the Claude Code validator');
+});
+
+test('.mcp.json starts the stdlib MCP server through FINCEPT_ANALYTICS_DIR', () => {
+  const server = readJson('.mcp.json').mcpServers['fincept-quant'];
+  assert.ok(server, 'fincept-quant server entry missing');
+  assert.strictEqual(server.command, 'python3');
+  assert.deepStrictEqual(server.args, ['${FINCEPT_ANALYTICS_DIR}/quant_evidence/mcp_server.py']);
+});
+
+test('marketplace lists fincept-quant after ecc', () => {
+  const marketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
+  assert.strictEqual(marketplace.plugins[0].name, 'ecc');
+  const entry = marketplace.plugins.find(p => p.name === 'fincept-quant');
+  assert.ok(entry, 'fincept-quant marketplace entry missing');
+  assert.strictEqual(entry.source, './plugins/fincept-quant');
+  assert.strictEqual(entry.version, readJson('.claude-plugin/plugin.json').version);
+});
+
+test('hooks.json commands point at existing scripts', () => {
+  const hooks = readJson('hooks/hooks.json').hooks;
+  const commands = Object.values(hooks).flat().flatMap(entry => entry.hooks.map(h => h.command));
+  assert.ok(commands.length >= 2);
+  for (const command of commands) {
+    const rel = command.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)"/);
+    assert.ok(rel, `hook command does not use CLAUDE_PLUGIN_ROOT: ${command}`);
+    assert.ok(fs.existsSync(path.join(pluginRoot, rel[1])), `missing hook script ${rel[1]}`);
+  }
+});
+
+test('agents have name, description, scalar tools and model', () => {
+  const files = markdownFiles('agents');
+  assert.ok(files.length >= 3, 'expected at least 3 agents');
+  for (const file of files) {
+    const { fields, body } = frontmatter(file);
+    for (const key of ['name', 'description', 'tools', 'model']) {
+      assert.ok(fields[key], `${path.basename(file)} missing ${key}`);
+    }
+    assert.strictEqual(fields.name, path.basename(file, '.md'));
+    assert.ok(!fields.tools.startsWith('['), `${path.basename(file)} tools must be a scalar`);
+    assert.ok(body.includes('## Prompt Defense Baseline'), `${path.basename(file)} lacks the prompt defense baseline`);
+  }
+});
+
+test('skills have frontmatter and When to Use / How It Works / Examples sections', () => {
+  const dirs = fs.readdirSync(path.join(pluginRoot, 'skills'));
+  assert.ok(dirs.length >= 3, 'expected at least 3 skills');
+  for (const dir of dirs) {
+    const { fields, body } = frontmatter(path.join(pluginRoot, 'skills', dir, 'SKILL.md'));
+    assert.strictEqual(fields.name, dir);
+    assert.ok(fields.description, `${dir} missing description`);
+    for (const heading of ['When to Use', 'How It Works', 'Examples']) {
+      assert.ok(new RegExp(`^## ${heading}`, 'm').test(body), `${dir} missing "## ${heading}"`);
+    }
+  }
+});
+
+test('commands declare a description', () => {
+  const files = markdownFiles('commands');
+  assert.ok(files.length >= 4, 'expected at least 4 commands');
+  for (const file of files) {
+    assert.ok(frontmatter(file).fields.description, `${path.basename(file)} missing description`);
+  }
+});
+
+test('post-edit hook reminds about parity after editing stats.py', () => {
+  const input = JSON.stringify({ tool_name: 'Edit', tool_input: { file_path: '/x/fincept-qt/scripts/Analytics/quant_evidence/stats.py' } });
+  const result = runHook('post-edit', { input });
+  assert.strictEqual(result.status, 0);
+  const out = JSON.parse(result.stdout);
+  assert.strictEqual(out.hookSpecificOutput.hookEventName, 'PostToolUse');
+  assert.match(out.hookSpecificOutput.additionalContext, /engine\.js/);
+});
+
+test('post-edit hook handles Windows separators', () => {
+  const input = JSON.stringify({ tool_input: { file_path: 'C:\\repo\\quant_evidence\\data\\evidence_kb.json' } });
+  const out = JSON.parse(runHook('post-edit', { input }).stdout);
+  assert.match(out.hookSpecificOutput.additionalContext, /export_web/);
+});
+
+test('post-edit hook stays silent for unrelated files', () => {
+  const input = JSON.stringify({ tool_input: { file_path: '/x/src/app.js' } });
+  const result = runHook('post-edit', { input });
+  assert.strictEqual(result.status, 0);
+  assert.strictEqual(result.stdout, '');
+});
+
+test('post-edit hook exits 0 on malformed input', () => {
+  const result = runHook('post-edit', { input: '{not json' });
+  assert.strictEqual(result.status, 0);
+  assert.strictEqual(result.stdout, '');
+  assert.match(result.stderr, /\[fincept-quant\]/);
+});
+
+test('session-start hook explains a missing FINCEPT_ANALYTICS_DIR', () => {
+  const result = runHook('session-start');
+  assert.strictEqual(result.status, 0);
+  assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /FINCEPT_ANALYTICS_DIR is not set/);
+});
+
+test('session-start hook flags a directory without the engine', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fincept-empty-'));
+  try {
+    const out = JSON.parse(runHook('session-start', { env: { FINCEPT_ANALYTICS_DIR: dir } }).stdout);
+    assert.match(out.hookSpecificOutput.additionalContext, /does not contain/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('session-start hook is silent when the engine is present', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fincept-ok-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'quant_evidence'));
+    fs.writeFileSync(path.join(dir, 'quant_evidence_cli.py'), '');
+    fs.writeFileSync(path.join(dir, 'quant_evidence', 'mcp_server.py'), '');
+    const result = runHook('session-start', { env: { FINCEPT_ANALYTICS_DIR: dir } });
+    assert.strictEqual(result.status, 0);
+    assert.strictEqual(result.stdout, '');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+console.log(`\nPassed: ${passed}`);
+console.log(`Failed: ${failed}`);
+process.exit(failed > 0 ? 1 : 0);
