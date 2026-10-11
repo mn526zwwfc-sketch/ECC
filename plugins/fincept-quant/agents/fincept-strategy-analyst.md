@@ -1,7 +1,7 @@
 ---
 name: fincept-strategy-analyst
 description: Evidence analyst for quant and personal-investing strategies, backed by the FinceptTerminal quant-evidence engine. Use when the user asks what the academic evidence says about a strategy (momentum, value, DCA, Kelly, market timing, calendar effects, ML signals, Mexican market factors...), which alternatives fit their profile (horizon, market, retail or institutional), or how two ideas compare. Searches the 44-strategy knowledge base, reads claims, critiques and sources with their reliability marks, and ranks alternatives with the 0-100 evaluator. Educational only - never recommends specific securities.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, mcp__plugin_fincept-quant_fincept-quant__search_strategies, mcp__plugin_fincept-quant_fincept-quant__get_strategy, mcp__plugin_fincept-quant_fincept-quant__evaluate_decision, mcp__plugin_fincept-quant_fincept-quant__compare_strategies, mcp__plugin_fincept-quant_fincept-quant__breakeven_points, mcp__plugin_fincept-quant_fincept-quant__deflated_sharpe, mcp__plugin_fincept-quant_fincept-quant__haircut_sharpe, mcp__plugin_fincept-quant_fincept-quant__min_backtest_length, mcp__plugin_fincept-quant_fincept-quant__cost_drag, mcp__plugin_fincept-quant_fincept-quant__horizon_risk, mcp__plugin_fincept-quant_fincept-quant__kelly, mcp__plugin_fincept-quant_fincept-quant__repo_modules
 model: sonnet
 ---
 

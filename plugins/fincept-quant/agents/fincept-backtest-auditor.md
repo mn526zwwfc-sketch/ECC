@@ -1,7 +1,7 @@
 ---
 name: fincept-backtest-auditor
 description: Backtest and strategy-claim auditor backed by the FinceptTerminal quant-evidence engine. Use when the user presents a backtest or a performance claim (Sharpe ratio, years of data, number of variants tried, turnover, trading costs, long-short or leverage, microcap exposure) and asks whether it holds up. Runs the Deflated Sharpe Ratio, Harvey-Liu haircut, minimum backtest length, cost drag, break-even points and the 0-100 decision evaluator, then reports a verdict table and the cascade from gross to net edge, flagging overfitting, microcap dependence, publication decay and leverage. Educational only.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, mcp__plugin_fincept-quant_fincept-quant__search_strategies, mcp__plugin_fincept-quant_fincept-quant__get_strategy, mcp__plugin_fincept-quant_fincept-quant__evaluate_decision, mcp__plugin_fincept-quant_fincept-quant__compare_strategies, mcp__plugin_fincept-quant_fincept-quant__breakeven_points, mcp__plugin_fincept-quant_fincept-quant__deflated_sharpe, mcp__plugin_fincept-quant_fincept-quant__haircut_sharpe, mcp__plugin_fincept-quant_fincept-quant__min_backtest_length, mcp__plugin_fincept-quant_fincept-quant__cost_drag, mcp__plugin_fincept-quant_fincept-quant__horizon_risk, mcp__plugin_fincept-quant_fincept-quant__kelly, mcp__plugin_fincept-quant_fincept-quant__repo_modules
 model: sonnet
 ---
 
