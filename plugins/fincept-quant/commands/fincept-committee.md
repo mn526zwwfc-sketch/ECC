@@ -46,7 +46,7 @@ If the auditor needs the CSV that `fincept-market-data` produces, run a second r
 Write one memo in the user's language. For a Spanish-speaking user use these section headings, in this order:
 
 1. **Veredicto** - one or two sentences: the engine's verdict and score (from the agents' tool results), or "sin veredicto" when the data was not enough.
-2. **Datos** - every number with its source and date (Yahoo Finance, Alpha Vantage, Quiver Quant, user file, knowledge base). Note symbols that could not be obtained.
+2. **Datos** - every number with its source and date (Yahoo Finance, Quiver Quant, user file, knowledge base). Note symbols that could not be obtained.
 3. **Evidencia** - what the knowledge base and the papers say, with reliability marks (`WP`, `ext.`, `sec.`, `1p`).
 4. **Señales alternativas** - the signals report, or why it does not apply (not a single US stock, no subscription, no records).
 5. **Riesgos** - overfitting (DSR, PBO, MinTRL against the years available), costs and turnover, microcaps, short live record, currency, data-source limits.

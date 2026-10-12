@@ -44,7 +44,7 @@ quant_evidence/
   web/engine.js                  JS port of stats.py + evaluator.py (browser + Node)
   web/decision_lab.template.html page template; build_web.py inlines engine + data
   app/                           Quant Studio: server.py, build_app.py, pages
-  tests/                         test_quant_evidence.py, test_app.py, test_alphavantage.py
+  tests/                         test_quant_evidence.py, test_app.py, test_yahoo_sync.py
 ```
 
 ### Rules
