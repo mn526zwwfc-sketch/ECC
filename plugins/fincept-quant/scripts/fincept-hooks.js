@@ -8,8 +8,12 @@
  *                  tells Claude how to fix it when it does not.
  *   post-edit      After an edit to the engine, reminds Claude of the
  *                  Python/JavaScript parity rule and the commands to re-run.
+ *   pre-liquid     Before a Liquid (Co-Invest connector) tool that can move
+ *                  money or change the account, asks the user to confirm; a
+ *                  subagent is denied outright, since only the main
+ *                  conversation can get the user's approval of an order.
  *
- * Both modes only read the filesystem, never block and always exit 0.
+ * Every mode only reads its input and the filesystem and always exits 0.
  */
 
 const fs = require('fs');
@@ -47,6 +51,21 @@ const EDIT_RULES = [
       + `Keep both in step and run \`${TEST_CMD}\`.`
   }
 ];
+
+// Liquid (Co-Invest connector) tools that only read data or prepare a
+// proposal, listed by exact name. Every other Liquid tool (orders, closes,
+// cancels, mode switches, funds, link fetches, trade picks) and any tool added
+// later needs the user's confirmation.
+const LIQUID_SERVER = /co[-_ ]?invest/i;
+const LIQUID_READ_ONLY = new Set([
+  'help', '_earn_pending_status', 'paper_trading_status', 'automated_trading_status',
+  'get_account', 'get_portfolio', 'get_position_history', 'get_transaction_history', 'get_news',
+  'get_positioning_pulse', 'get_technical_indicators', 'get_earn_balance', 'get_staking',
+  'view_open_orders', 'view_prediction_orders', 'view_prediction_positions',
+  'show_chart', 'show_orderbook', 'show_market_overview', 'show_portfolio_chart', 'show_prediction_orderbook',
+  'search_markets', 'search_prediction_markets', 'analyze_market', 'analyze_markets_batch',
+  'leaderboard_data', 'leaderboard_rank', 'suggest_trade', 'suggest_trades_batch', 'suggest_order'
+]);
 
 function emit(event, context) {
   process.stdout.write(JSON.stringify({
@@ -86,6 +105,28 @@ function postEdit(input) {
   if (rule) emit('PostToolUse', `[fincept-quant] ${rule.note}`);
 }
 
+function liquidDecision(input) {
+  const name = String((input && input.tool_name) || '');
+  const match = name.match(/^mcp__(.+?)__(.+)$/);
+  if (!LIQUID_SERVER.test(match ? match[1] : name)) return null;
+  const tool = match ? match[2] : name;
+  if (match && LIQUID_READ_ONLY.has(tool)) return null;
+  if (input.agent_id) {
+    return { permissionDecision: 'deny', permissionDecisionReason: `[fincept-quant] Liquid ${tool} is not a read-only tool. `
+      + 'Subagents may only read; return the proposal to the main conversation, which asks the user to approve the exact action.' };
+  }
+  const toolInput = input.tool_input || {};
+  const what = toolInput.confirmed === true ? 'EXECUTES an action that can move money or change the account'
+    : 'is not a read-only tool (a preview if it has no confirmed=true, otherwise an account change)';
+  return { permissionDecision: 'ask', permissionDecisionReason: `[fincept-quant] Liquid ${tool} ${what}. `
+    + 'Approve only if you already approved this exact action in the chat.' };
+}
+
+function preLiquid(input) {
+  const decision = liquidDecision(input);
+  if (decision) process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', ...decision } }));
+}
+
 function readStdin() {
   try {
     return fs.readFileSync(0, 'utf8');
@@ -102,6 +143,16 @@ function main(argv, env) {
     } else if (mode === 'post-edit') {
       const raw = readStdin();
       postEdit(raw.trim() ? JSON.parse(raw) : {});
+    } else if (mode === 'pre-liquid') {
+      const raw = readStdin();
+      let input = null;
+      try {
+        input = JSON.parse(raw);
+      } catch (_) {
+        // Unreadable input: ask rather than let a possible order through silently.
+        input = { tool_name: 'mcp__Co-Invest__unknown' };
+      }
+      preLiquid(input);
     } else {
       process.stderr.write(`[fincept-quant] unknown hook mode: ${mode}\n`);
     }
@@ -115,4 +166,4 @@ if (require.main === module) {
   process.exit(0);
 }
 
-module.exports = { EDIT_RULES, checkAnalyticsDir, postEdit, sessionStart };
+module.exports = { EDIT_RULES, LIQUID_READ_ONLY, checkAnalyticsDir, liquidDecision, postEdit, sessionStart };

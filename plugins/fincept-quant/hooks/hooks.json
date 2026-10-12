@@ -23,6 +23,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*([Cc]o-?[Ii]nvest|[Cc]o_[Ii]nvest).*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/fincept-hooks.js\" pre-liquid",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

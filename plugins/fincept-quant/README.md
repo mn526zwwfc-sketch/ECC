@@ -23,10 +23,10 @@ securities.
 | Piece | Contents |
 |-------|----------|
 | MCP server `fincept-quant` | `search_strategies`, `get_strategy`, `evaluate_decision`, `compare_strategies`, `breakeven_points`, `deflated_sharpe`, `haircut_sharpe`, `min_backtest_length`, `cost_drag`, `horizon_risk`, `kelly`, `repo_modules` |
-| Agents | `fincept-strategy-analyst` (what the evidence says, what fits a profile), `fincept-backtest-auditor` (overfitting, costs and decay in a backtest claim, including PBO and MinTRL on the user's data), `fincept-market-data` (prices from Yahoo Finance or the user's files, as clean return tables), `fincept-signals-analyst` (Congress and insider trades, lobbying, contracts, and what the evidence says about following them), `fincept-research-curator` (verified updates to the evidence base), `fincept-engine-developer` (changing the engine safely) |
+| Agents | `fincept-strategy-analyst` (what the evidence says, what fits a profile), `fincept-backtest-auditor` (overfitting, costs and decay in a backtest claim, including PBO and MinTRL on the user's data), `fincept-market-data` (prices from Yahoo Finance or the user's files, as clean return tables), `fincept-signals-analyst` (Congress and insider trades, lobbying, contracts, and what the evidence says about following them), `fincept-research-curator` (verified updates to the evidence base), `fincept-engine-developer` (changing the engine safely), `fincept-liquid-trader` (read-only pre-trade check of an order you name on your Liquid account) |
 | Skills | `fincept-investment-playbook` (shared by every agent: product map, data sources and limits, evidence, thresholds, guardrails, lessons learned), `quant-evidence-method`, `quant-stats-toolkit`, `fincept-engine-development` |
-| Commands | `/fincept-committee` (runs the agents in parallel and writes one memo), `/fincept-signals`, `/fincept-evaluate`, `/fincept-compare`, `/fincept-breakeven`, `/fincept-strategy` |
-| Hooks | SessionStart checks the engine path; PostToolUse reminds about the Python/JavaScript parity rule after engine edits |
+| Commands | `/fincept-committee` (runs the agents in parallel and writes one memo), `/fincept-signals`, `/fincept-evaluate`, `/fincept-compare`, `/fincept-breakeven`, `/fincept-strategy`, `/fincept-trade` (one Liquid order: check, proposal, your approval, execution) |
+| Hooks | SessionStart checks the engine path; PostToolUse reminds about the Python/JavaScript parity rule after engine edits; PreToolUse asks you before any Liquid tool that moves money or changes the account, and denies those tools to subagents |
 
 The MCP server is part of FinceptTerminal (`quant_evidence/mcp_server.py`).
 It uses only the Python standard library, so it needs no `pip install`.
@@ -37,11 +37,30 @@ It uses only the Python standard library, so it needs no `pip install`.
 |--------|----------|-------|
 | Yahoo Finance | Monthly adjusted prices (US, BMV `.MX`, indices `^MXX`, currencies `USDMXN=X`) | `quant_evidence/app/yahoo_sync.py`; a scheduled task stores them in the Laboratorio Fincept page database on weekdays (currently paused, so agents run `yahoo_sync.py` for fresher data). Unofficial endpoint, personal use |
 | Quiver Quant connector | Congress and insider trades, lobbying, federal contracts | Only source for these signals. Needs at least the Hobbyist subscription; without it the agents report the signals as unavailable |
+| Liquid (Co-Invest connector) | Your trading account: mode, balances, positions, market data; orders only through `/fincept-trade` | Live account unless paper trading is enabled; every order needs your approval of its exact terms |
 | The user's files | Backtests and variant tables | `node quant_evidence/web/series_cli.js file.csv` |
 
 The MCP tool names in the agents' `tools` lists follow how these connectors
 appear in claude.ai sessions (`mcp__Quiver_Quant__*`). Google Finance history
 and Apple Stocks have no API the agents can use.
+
+## Trading on Liquid
+
+The `fincept-liquid-trader` agent only reads: account mode, balances,
+positions, the market, and the Fincept evidence for the order you describe.
+It cannot trade. Orders go through `/fincept-trade` in the main conversation:
+
+1. You name the order (asset, side, size, leverage, optional TP/SL).
+2. The agent checks it: collateral, liquidation distance, leverage against
+   Kelly, funding, and the evidence behind the strategy.
+3. The command says whether the account is in PAPER or LIVE mode. On a live
+   account it asks whether you want real money or paper trading.
+4. Liquid prepares a proposal and Claude shows its exact terms.
+5. Only after you approve that exact proposal is it sent, and the plugin hook
+   asks you once more before the tool runs.
+
+Nothing trades on a schedule, from another agent's message or from a general
+"go ahead". The plugin never enables automated trading or moves funds.
 
 ## Setup
 
@@ -77,6 +96,7 @@ Python 3.10 or newer must be on the `PATH` as `python3`.
 /fincept-compare 25 years old, retail, Mexico, 30-year horizon
 /fincept-breakeven value long-short, 60% monthly turnover
 /fincept-signals NVDA
+/fincept-trade long BTC 600 USD notional 2x SL 58000
 /fincept-committee my momentum backtest in /tmp/backtest.csv, 40 variants tried
 ```
 

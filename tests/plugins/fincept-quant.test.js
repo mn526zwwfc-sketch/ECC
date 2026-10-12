@@ -214,6 +214,64 @@ test('the playbook lists the engine CLI commands agents rely on', () => {
   }
 });
 
+test('the Liquid trader agent has only read tools', () => {
+  const { liquidDecision } = require(hookScript);
+  const { fields } = frontmatter(path.join(pluginRoot, 'agents', 'fincept-liquid-trader.md'));
+  const liquid = fields.tools.split(',').map(t => t.trim()).filter(t => t.startsWith('mcp__Co-Invest__'));
+  assert.ok(liquid.includes('mcp__Co-Invest__paper_trading_status'), 'agent cannot read the account mode');
+  for (const tool of liquid) {
+    assert.strictEqual(liquidDecision({ tool_name: tool }), null, `${tool} is not a read-only Liquid tool`);
+    assert.ok(!/__suggest_/.test(tool), `${tool} prepares orders; only the main conversation does that`);
+  }
+});
+
+test('pre-liquid hook asks before Liquid tools that move money or change the account', () => {
+  for (const tool of ['execute_order', 'close_positions_batch', 'enable_paper_trading', 'withdraw_earn', 'show_deposit',
+    'read_link', 'market_picks', 'plan_portfolio', 'get_a_tool_added_later']) {
+    const result = runHook('pre-liquid', { input: JSON.stringify({ tool_name: `mcp__Co-Invest__${tool}` }) });
+    assert.strictEqual(result.status, 0);
+    const out = JSON.parse(result.stdout).hookSpecificOutput;
+    assert.strictEqual(out.hookEventName, 'PreToolUse');
+    assert.strictEqual(out.permissionDecision, 'ask', `${tool} should ask`);
+  }
+});
+
+test('pre-liquid hook stays silent for reads and proposals', () => {
+  for (const tool of ['get_portfolio', 'paper_trading_status', 'analyze_market', 'suggest_trade', '_earn_pending_status']) {
+    const result = runHook('pre-liquid', { input: JSON.stringify({ tool_name: `mcp__Co-Invest__${tool}` }) });
+    assert.strictEqual(result.status, 0);
+    assert.strictEqual(result.stdout, '', `${tool} should not prompt`);
+  }
+  assert.strictEqual(runHook('pre-liquid', { input: JSON.stringify({ tool_name: 'Bash' }) }).stdout, '');
+});
+
+test('pre-liquid hook denies order tools to subagents and asks on unknown or bad input', () => {
+  const input = JSON.stringify({ tool_name: 'mcp__claude_ai_Co_Invest__execute_order', agent_id: 'sub-1' });
+  const out = JSON.parse(runHook('pre-liquid', { input }).stdout).hookSpecificOutput;
+  assert.strictEqual(out.permissionDecision, 'deny');
+  const renamed = runHook('pre-liquid', { input: JSON.stringify({ tool_name: 'mcp__Co_Invest_Liquid__execute_order' }) });
+  assert.strictEqual(JSON.parse(renamed.stdout).hookSpecificOutput.permissionDecision, 'ask');
+  const bad = runHook('pre-liquid', { input: '{not json' });
+  assert.strictEqual(bad.status, 0);
+  assert.strictEqual(JSON.parse(bad.stdout).hookSpecificOutput.permissionDecision, 'ask');
+});
+
+test('hooks.json routes Liquid tools to the pre-liquid hook', () => {
+  const entries = readJson('hooks/hooks.json').hooks.PreToolUse;
+  const entry = entries.find(e => e.hooks.some(h => h.command.endsWith(' pre-liquid')));
+  assert.ok(entry, 'no PreToolUse entry for pre-liquid');
+  const matcher = new RegExp(`^(?:${entry.matcher})$`);
+  assert.ok(matcher.test('mcp__Co-Invest__execute_order'));
+  assert.ok(!matcher.test('mcp__Quiver_Quant__get_congress_trades'));
+});
+
+test('the trade command gates on mode and explicit approval', () => {
+  const text = fs.readFileSync(path.join(pluginRoot, 'commands', 'fincept-trade.md'), 'utf8');
+  for (const needle of ['fincept-liquid-trader', 'paper_trading_status', 'suggest_trade', 'confirmed: true', 'idempotencyKey']) {
+    assert.ok(text.includes(needle), `fincept-trade.md does not mention ${needle}`);
+  }
+});
+
 console.log(`\nPassed: ${passed}`);
 console.log(`Failed: ${failed}`);
 process.exit(failed > 0 ? 1 : 0);
