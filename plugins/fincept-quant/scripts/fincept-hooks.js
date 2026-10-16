@@ -12,12 +12,15 @@
  *                  money or change the account, asks the user to confirm; a
  *                  subagent is denied outright, since only the main
  *                  conversation can get the user's approval of an order.
+ *                  An order above the caps in the governance risk policy is
+ *                  denied even in the main conversation.
  *
  * Every mode only reads its input and the filesystem and always exits 0.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { capViolation, loadPolicy } = require('./lib/liquid-policy');
 
 const CLI_NAME = 'quant_evidence_cli.py';
 const SERVER_REL = path.join('quant_evidence', 'mcp_server.py');
@@ -116,6 +119,11 @@ function liquidDecision(input) {
       + 'Subagents may only read; return the proposal to the main conversation, which asks the user to approve the exact action.' };
   }
   const toolInput = input.tool_input || {};
+  const breach = capViolation(tool, toolInput, loadPolicy());
+  if (breach) {
+    return { permissionDecision: 'deny', permissionDecisionReason: `[fincept-quant] Liquid ${tool} blocked by the risk policy: ${breach}. `
+      + 'Approval in chat cannot lift a cap; only the account owner can, by editing skills/fincept-governance/policies/risk-policy.json.' };
+  }
   const what = toolInput.confirmed === true ? 'EXECUTES an action that can move money or change the account'
     : 'is not a read-only tool (a preview if it has no confirmed=true, otherwise an account change)';
   return { permissionDecision: 'ask', permissionDecisionReason: `[fincept-quant] Liquid ${tool} ${what}. `

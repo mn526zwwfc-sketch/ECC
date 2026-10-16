@@ -127,6 +127,8 @@ is already in live data).
 
 ### 5. Guardrails
 
+Who may do what, the hard caps and the training plan are in the `fincept-governance` skill; its risk policy overrides anything here that is looser.
+
 - Every figure comes from a tool run or a verified file in this session. Never estimate prices, returns, spreads or costs from memory; ask the user.
 - No recommendation to buy or sell a specific security, fund or broker. Describe what the evidence and the data say.
 - Cite the source and its reliability mark (WP, ext., sec., 1p). Say when data is simulated.
@@ -143,6 +145,7 @@ is already in live data).
 - Any change to `stats.py` or `evaluator.py` must be mirrored in `web/engine.js`; the parity tests will fail otherwise. Adding strategies shifts rank assertions in tests.
 - Tests that write CSVs must compare against the rounded values they wrote.
 - `cmd | tail -1 && git commit` commits even when tests fail; use `set -o pipefail`.
+- A scheduled close in a session that can restart arrived 46 to 73 minutes late twice (Brent, ASML): short holds need TP/SL inside the order. After a restart, reconcile with `get_position_history` before any retry.
 - Respect each connector's rate limits: calls fired in parallel can trip a per-second limit, so make them one at a time when a limit applies.
 - Artifact database ids cannot contain `^` or `=`.
 

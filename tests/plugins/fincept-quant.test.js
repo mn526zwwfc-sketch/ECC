@@ -228,7 +228,8 @@ test('the Liquid trader agent has only read tools', () => {
 test('pre-liquid hook asks before Liquid tools that move money or change the account', () => {
   for (const tool of ['execute_order', 'close_positions_batch', 'enable_paper_trading', 'withdraw_earn', 'show_deposit',
     'read_link', 'market_picks', 'plan_portfolio', 'get_a_tool_added_later']) {
-    const result = runHook('pre-liquid', { input: JSON.stringify({ tool_name: `mcp__Co-Invest__${tool}` }) });
+    const inCap = { executionMode: 'paper', size: 100, leverage: 1 };
+    const result = runHook('pre-liquid', { input: JSON.stringify({ tool_name: `mcp__Co-Invest__${tool}`, tool_input: inCap }) });
     assert.strictEqual(result.status, 0);
     const out = JSON.parse(result.stdout).hookSpecificOutput;
     assert.strictEqual(out.hookEventName, 'PreToolUse');
@@ -249,7 +250,7 @@ test('pre-liquid hook denies order tools to subagents and asks on unknown or bad
   const input = JSON.stringify({ tool_name: 'mcp__claude_ai_Co_Invest__execute_order', agent_id: 'sub-1' });
   const out = JSON.parse(runHook('pre-liquid', { input }).stdout).hookSpecificOutput;
   assert.strictEqual(out.permissionDecision, 'deny');
-  const renamed = runHook('pre-liquid', { input: JSON.stringify({ tool_name: 'mcp__Co_Invest_Liquid__execute_order' }) });
+  const renamed = runHook('pre-liquid', { input: JSON.stringify({ tool_name: 'mcp__Co_Invest_Liquid__execute_order', tool_input: { executionMode: 'paper', size: 100, leverage: 1 } }) });
   assert.strictEqual(JSON.parse(renamed.stdout).hookSpecificOutput.permissionDecision, 'ask');
   const bad = runHook('pre-liquid', { input: '{not json' });
   assert.strictEqual(bad.status, 0);
@@ -270,6 +271,85 @@ test('the trade command gates on mode and explicit approval', () => {
   for (const needle of ['fincept-liquid-trader', 'paper_trading_status', 'suggest_trade', 'confirmed: true', 'idempotencyKey']) {
     assert.ok(text.includes(needle), `fincept-trade.md does not mention ${needle}`);
   }
+});
+
+const governanceRoot = path.join(pluginRoot, 'skills', 'fincept-governance');
+
+test('every agent cites the governance skill and holds only read-only Liquid tools', () => {
+  const { liquidDecision } = require(hookScript);
+  for (const file of markdownFiles('agents')) {
+    assert.ok(fs.readFileSync(file, 'utf8').includes('fincept-governance'), `${path.basename(file)} does not cite fincept-governance`);
+    const tools = frontmatter(file).fields.tools.split(',').map(t => t.trim()).filter(t => t.startsWith('mcp__Co-Invest__'));
+    for (const tool of tools) {
+      assert.strictEqual(liquidDecision({ tool_name: tool }), null, `${path.basename(file)} holds non-read-only ${tool}`);
+      assert.ok(!/__suggest_/.test(tool), `${path.basename(file)} holds proposal tool ${tool}`);
+    }
+  }
+});
+
+test('risk policy defines paper and live caps and the authorization tiers', () => {
+  const policy = JSON.parse(fs.readFileSync(path.join(governanceRoot, 'policies', 'risk-policy.json'), 'utf8'));
+  for (const mode of ['paper', 'live']) {
+    assert.ok(policy.modes[mode].max_notional_usd > 0, `${mode} notional cap missing`);
+    assert.ok(policy.modes[mode].max_leverage > 0, `${mode} leverage cap missing`);
+  }
+  assert.strictEqual(policy.modes.live.require_stop_loss, true);
+  assert.ok(policy.modes.live.max_notional_usd <= policy.modes.paper.max_notional_usd);
+  for (const tier of ['subagent', 'main_conversation', 'account_owner']) assert.ok(policy.authorization_tiers[tier], `tier ${tier} missing`);
+});
+
+test('casebook cases are well formed and name existing agents', () => {
+  const agents = new Set(markdownFiles('agents').map(f => path.basename(f, '.md')));
+  const casebook = JSON.parse(fs.readFileSync(path.join(governanceRoot, 'casebook', 'cases.json'), 'utf8'));
+  const ids = new Set();
+  for (const c of casebook.cases) {
+    assert.ok(!ids.has(c.id), `duplicate case ${c.id}`);
+    ids.add(c.id);
+    assert.ok([1, 2, 3].includes(c.phase), `${c.id} has no valid phase`);
+    assert.ok(c.expected && c.expected.decision, `${c.id} has no expected decision`);
+    for (const a of c.agents) assert.ok(agents.has(a), `${c.id} names unknown agent ${a}`);
+  }
+  for (const phase of [1, 2, 3]) assert.ok(casebook.cases.some(c => c.phase === phase), `no phase ${phase} case`);
+});
+
+test('grader passes an answer built from the expectations and fails wrong ones', () => {
+  const { grade } = require(path.join(pluginRoot, 'scripts', 'fincept-grade.js'));
+  const casebook = JSON.parse(fs.readFileSync(path.join(governanceRoot, 'casebook', 'cases.json'), 'utf8'));
+  const c2 = casebook.cases.find(c => c.id === 'C2-brent-long-closed');
+  const figures = Object.fromEntries(Object.entries(c2.expected.figures).map(([k, v]) => [k, v.value]));
+  const good = { case_id: c2.id, decision: 'CONCILIADO', figures, explanation: 'Entrada 08:24, salida 09:48 (hora CDMX).' };
+  assert.strictEqual(grade(casebook, [good]).passed, 1);
+  const wrongNumber = { ...good, figures: { ...figures, net_pnl_usd: 0.388 } };
+  assert.strictEqual(grade(casebook, [wrongNumber]).failed, 1);
+  const s4 = casebook.cases.find(c => c.id === 'S4-over-cap');
+  const unsafe = { case_id: s4.id, decision: 'NO_EJECUTAR', figures: {}, explanation: 'Supera el límite de la política, pero aprobado, ejecuto.' };
+  assert.strictEqual(grade(casebook, [unsafe]).failed, 1);
+});
+
+test('pre-liquid hook enforces the risk-policy caps even in the main conversation', () => {
+  const decide = toolInput => JSON.parse(runHook('pre-liquid', {
+    input: JSON.stringify({ tool_name: 'mcp__Co-Invest__execute_order', tool_input: toolInput })
+  }).stdout).hookSpecificOutput.permissionDecision;
+  assert.strictEqual(decide({ executionMode: 'live', size: 500, leverage: 1, sl: 1, confirmed: true }), 'deny');
+  assert.strictEqual(decide({ executionMode: 'live', size: 50, leverage: 5, sl: 1, confirmed: true }), 'deny');
+  assert.strictEqual(decide({ executionMode: 'live', size: 50, leverage: 1, confirmed: true }), 'deny');
+  assert.strictEqual(decide({ size: 50, leverage: 1, confirmed: true }), 'deny', 'a missing mode is treated as live');
+  assert.strictEqual(decide({ executionMode: 'live', size: 50, leverage: 2, sl: 90, confirmed: true }), 'ask');
+  assert.strictEqual(decide({ executionMode: 'paper', size: 100, leverage: 1, confirmed: true }), 'ask');
+  const batch = JSON.parse(runHook('pre-liquid', { input: JSON.stringify({
+    tool_name: 'mcp__Co-Invest__execute_orders_batch',
+    tool_input: { executionMode: 'paper', orders: [{ size: 100, leverage: 1 }, { size: 5000, leverage: 1 }] }
+  }) }).stdout).hookSpecificOutput;
+  assert.strictEqual(batch.permissionDecision, 'deny');
+});
+
+test('governance ships its SOPs, retraining log and train command', () => {
+  for (const sop of ['trade.md', 'reconciliation.md', 'compliance-review.md', 'communication.md']) {
+    assert.ok(fs.existsSync(path.join(governanceRoot, 'sops', sop)), `missing SOP ${sop}`);
+  }
+  assert.match(fs.readFileSync(path.join(governanceRoot, 'retraining-log.md'), 'utf8'), /## Entry template/);
+  const train = fs.readFileSync(path.join(pluginRoot, 'commands', 'fincept-train.md'), 'utf8');
+  for (const needle of ['fincept-grade.js', 'retraining-log.md', 'expected']) assert.ok(train.includes(needle), `fincept-train.md lacks ${needle}`);
 });
 
 console.log(`\nPassed: ${passed}`);
