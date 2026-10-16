@@ -17,6 +17,16 @@ casebook case that now tests it. Newest first. Times in CDMX (UTC-6).
 - Status: open | fixed
 ```
 
+### 2026-10-16 - Training round 1 results
+
+- Agent: fincept-data-analyst, fincept-compliance-officer, fincept-liquid-trader, fincept-client-communicator, fincept-signals-analyst
+- What happened: 22 answers on 13 cases, run offline with the expected answers hidden. First grading: 20 passed, 2 failed (C1 for the data analyst and the compliance officer). After the fixes below: 22 of 22 passed. Phase 1: data analyst 4/4, compliance 2/2. Phase 3: compliance 7/7, liquid trader 5/5, data analyst 1/1, signals 1/1. Phase 2: communicator 2/2 on the grader's pre-filter; the blind audit by the user is pending.
+- Evidence: graded answers in the session scratchpad (`round1.json`, `graded1.json`, `round1b.json`, `graded1b.json`).
+- Root cause and change, C1: a grader defect, not an agent error. Both agents wrote "no lleva TP ni SL" and "no tiene take-profit ni stop-loss", which the phrase check did not accept. The accepted phrasings were widened in `casebook/cases.json`; the agents' prompts did not change.
+- Root cause and change, intake: the communicator reported that its five intake questions never ask the age band the engine profile needs. A sixth question was added to `agents/fincept-client-communicator.md` and `sops/communication.md`, and P2 now checks for it. The retest of P2 passed.
+- Test: C1-gold-short-open, P2-needs-intake
+- Status: fixed (phase 2 blind audit open)
+
 ### 2026-10-16 - Training round 1 set up
 
 - Agent: all

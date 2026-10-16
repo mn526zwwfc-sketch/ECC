@@ -40,7 +40,13 @@
           [
             "sin stop",
             "sin sl",
+            "sin tp/sl",
+            "ni sl",
+            "ni stop",
             "no tiene stop",
+            "no tiene take-profit ni stop",
+            "sl = null",
+            "sl nulo",
             "sin protección",
             "without stop"
           ],
@@ -300,6 +306,10 @@
             "práctica",
             "paper",
             "simulad"
+          ],
+          [
+            "edad",
+            "años tienes"
           ]
         ],
         "must_not_include": [
