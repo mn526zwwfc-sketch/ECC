@@ -9,7 +9,7 @@
  *   node fincept-journal.js <history.json|-> [--plan <plan.json>] [--csv <out.csv>]
  *
  * history: the tool's JSON ({"positions": [...]}) with includeFills: true.
- * plan: {"<symbol>": {"planned_hold_minutes": n, "reference_price": p}}.
+ * plan: {"<symbol>": {"planned_hold_minutes": n, "reference_price": p, "opened_after": ISO}}.
  * Times are reported in America/Mexico_City.
  */
 
@@ -54,7 +54,10 @@ function journalRow(position, plan) {
   const opened = position.openedAt ? Date.parse(position.openedAt) : null;
   const closedAt = position.closedAt ? Date.parse(position.closedAt) : null;
   const holding = !isNil(opened) && !isNil(closedAt) ? (closedAt - opened) / 60000 : null;
-  const p = (plan && plan[position.symbol]) || {};
+  const candidate = (plan && plan[position.symbol]) || {};
+  // A plan applies only to positions opened after its session started, so an
+  // older trade in the same symbol is not graded against today's plan.
+  const p = candidate.opened_after && !isNil(opened) && opened < Date.parse(candidate.opened_after) ? {} : candidate;
   const ref = Number(p.reference_price);
   const issues = [];
   if (closed && Math.abs(entrySize - exitSize) > 1e-9) issues.push(`entry size ${entrySize} != exit size ${exitSize}`);

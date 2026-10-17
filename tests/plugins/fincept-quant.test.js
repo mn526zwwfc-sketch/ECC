@@ -394,6 +394,8 @@ test('journal reproduces the reconciled ASML trade from its fills', () => {
   assert.ok(row.entry_slippage_bps > 0, 'a short sold below the reference price is a cost');
   assert.deepStrictEqual(row.issues, []);
   assert.strictEqual(out.totals.losers, 1);
+  const later = journal(history, { 'xyz:ASML': { planned_hold_minutes: 10, reference_price: 1697.6, opened_after: '2026-10-15T00:00:00Z' } });
+  assert.strictEqual(later.rows[0].delay_minutes, null, 'a plan must not apply to positions opened before its session');
 });
 
 test('training mandate is paper-only and fits the risk policy', () => {

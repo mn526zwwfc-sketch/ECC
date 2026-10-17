@@ -3,14 +3,31 @@
   "updated": "2026-10-17",
   "purpose": "Paper-only training mandate for the Fincept firm. It fixes every choice in advance so the agents are graded on process, not on picking trades. It is not a strategy with proven edge: the evidence base scores short-horizon timing between 22 and 52 out of 100.",
   "mode": "paper",
-  "universe": ["BTC", "ETH", "SOL", "xyz:BRENTOIL", "xyz:ASML", "xyz:SP500"],
-  "per_trade": { "size_usd": 100, "leverage": 1, "order_type": "market" },
+  "universe": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "xyz:BRENTOIL",
+    "xyz:ASML",
+    "xyz:SP500"
+  ],
+  "per_trade": {
+    "size_usd": 100,
+    "leverage": 1,
+    "order_type": "market"
+  },
   "direction_rule": [
     "1. If analyze_market gives a smart-money long share outside 45-55%, take the side the smart money is net on.",
     "2. Otherwise, on the shortest timeframe: long if price > EMA20 > EMA50 and MACD > 0; short if price < EMA20 < EMA50 and MACD < 0.",
     "3. Otherwise: no trade."
   ],
-  "exits": { "stop_loss_atr_1h": 1.0, "take_profit_atr_1h": 1.5, "inside_the_order": true, "target_hold_minutes": 60 },
+  "exits": {
+    "stop_loss_atr_1h": 1.0,
+    "take_profit_atr_1h": 1.5,
+    "inside_the_order": true,
+    "target_hold_minutes": 60,
+    "target_hold_minutes_note": "Planning horizon used to size ATR exits; it is not a time exit. Nothing is closed at the target hold without the owner's approval."
+  },
   "approval": "The account owner approves each basket's exact legs in chat before execution. No standing approval exists.",
   "max_trades_per_session": 4
 }

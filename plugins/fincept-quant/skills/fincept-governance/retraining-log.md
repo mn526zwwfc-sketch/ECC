@@ -17,6 +17,15 @@ casebook case that now tests it. Newest first. Times in CDMX (UTC-6).
 - Status: open | fixed
 ```
 
+### 2026-10-17 - Session 1 review (02:17 CDMX)
+
+- Agent: operations, main conversation
+- What happened: the read-only review found no TP or SL hit; the four session-1 positions are open (unrealized -0.80 USD; GOLD +0.95). All four entries filled better than the ticket's reference price (BTC -6.6, ETH -11.1, SOL -15.3, Brent -23.3 bps; negative is a gain). Operations found two defects: the journal applied today's plan to the Brent trade of 13 Oct by symbol alone (false -410.58 bps and 23.25 min delay), and the mandate's 60-minute target hold read like a time exit although nothing closes at 60 minutes.
+- Evidence: `history-s1.json`, `journal-s1.csv` in the session scratchpad; `view_open_orders` shows 10 resting TP/SL orders.
+- Root cause and change: plans now carry `opened_after` and apply only to positions opened after it (`scripts/fincept-journal.js`, tested); the mandate states that the target hold is a planning horizon, not a time exit.
+- Test: journal test (plan scoped by session start)
+- Status: fixed
+
 ### 2026-10-17 - Stale account-mode statement in prompts
 
 - Agent: fincept-liquid-trader (prompt), fincept-investment-playbook
