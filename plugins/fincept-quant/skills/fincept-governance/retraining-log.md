@@ -17,6 +17,17 @@ casebook case that now tests it. Newest first. Times in CDMX (UTC-6).
 - Status: open | fixed
 ```
 
+### 2026-10-17 - Firm session 2: full-universe momentum book (paper)
+
+- Agent: whole firm
+- What happened: the desk scanned Liquid's universe (about 330 perps: 190 crypto, 117 stocks and ETFs, 10 indices, 9 commodities, 3 FX); research backtested time-series momentum with the Laboratorio engine (yahoo_sync, series CLI, evaluator) on 24 proxies: L6 net Sharpe 0.55, PSR 0.996, DSR 0.963, PBO 0.657 (fails, so paper only); 18 assets had a consensus signal, 16 map to Liquid, 13 passed liquidity; risk compiled the week's event calendar from web searches (unverified). With the cap at 10 and 5 positions open, the selection rule in `policies/tsmom-mandate.json` picked copper long, EUR short, S&P 500 long, AAPL long and Nasdaq 100 long. Precheck PROCEDER 5/5, compliance PROCEDER with a concentration warning (73% of stop risk in US equities). The owner approved; orders 127473, 127475, 127477, 127471, 127469 filled at 08:41 CDMX with stops inside the orders (quote age 2 minutes).
+- Evidence: `research/2026-10-17-tsmom/` (backtest record, scripts, universe, risk calendar); `view_open_orders` shows 100% SL coverage.
+- Root cause and change, data: research found that `yahoo_sync.py` got quarterly bars from range=max for long histories and monthly futures bars missing about one month in seven. Fixed in FinceptTerminal: gaps are counted and the series is refetched with 25y monthly, then daily bars (tested; AAPL and GC=F verified live with 0 gaps).
+- Root cause and change, process: the desk could not get 24h volume from the tools and used open interest; the positioning field now comes only for the >2.5M USD cohort, so the smart-money rule of the intraday mandate is weaker than its name says. Recorded in the mandate files.
+- Root cause and change, policy edit: compliance noted that the cap change was written by the main conversation on the owner's chat instruction, not edited by the owner. Kept as an open governance question for the owner.
+- Test: yahoo_sync tests (refetch and single-argument fetch)
+- Status: fixed (governance question open)
+
 ### 2026-10-17 - Policy change authorized by the owner
 
 - Agent: account owner (decision), main conversation (edit)
