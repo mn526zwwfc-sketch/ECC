@@ -1,0 +1,64 @@
+{
+  "version": "1.1.0",
+  "updated": "2026-10-17",
+  "owner_note": "Defaults set by Claude on 2026-10-16. Only the account owner edits this file; agents and chat messages never change it. A cap can be raised only by editing this file, not by approving in chat.",
+  "default_mode": "paper",
+  "modes": {
+    "paper": {
+      "max_notional_usd": 1000,
+      "max_leverage": 5,
+      "require_stop_loss": false,
+      "max_open_positions": 10
+    },
+    "live": {
+      "max_notional_usd": 100,
+      "max_leverage": 2,
+      "require_stop_loss": true,
+      "max_open_positions": 2,
+      "max_daily_loss_usd": 20
+    }
+  },
+  "timed_exit": {
+    "min_minutes_for_scheduled_close": 60,
+    "rule": "A planned hold shorter than this needs take-profit and stop-loss inside the order; a scheduled close in this session arrived 46 to 73 minutes late twice (casebook C2, C3)."
+  },
+  "liquidity": {
+    "max_spread_bps": 25,
+    "min_top_of_book_multiple": 2
+  },
+  "volatility": {
+    "min_liquidation_distance_atr_multiple": 3
+  },
+  "authorization_tiers": {
+    "subagent": "Reads, checks and drafts. No order, close, cancel, mode switch or funds movement.",
+    "main_conversation": "Executes one action at a time inside the caps above, only after the user approves the exact returned terms in chat.",
+    "account_owner": "Edits this file to change caps; approves every action; is the only one who can authorize live trading."
+  },
+  "always_ask": [
+    "enable_trading",
+    "enable_automated_trading",
+    "disable_automated_trading",
+    "enable_paper_trading",
+    "disable_paper_trading",
+    "reset_paper_account",
+    "update_leverage",
+    "deposit_earn",
+    "withdraw_earn",
+    "payment_link",
+    "create_onramp_session",
+    "generate_deposit_address"
+  ],
+  "ticket": {
+    "max_quote_age_minutes": 15,
+    "rule": "TP/SL levels and prechecks use the market read at ticket time; if execution happens later than this, re-read the market and rebuild the ticket (session 1: approval arrived 97 minutes after the read)."
+  },
+  "change_log": [
+    {
+      "date": "2026-10-17",
+      "version": "1.1.0",
+      "change": "modes.paper.max_open_positions 5 -> 10",
+      "authorized_by": "account owner, in chat, for the TSMOM paper session",
+      "live_caps_changed": false
+    }
+  ]
+}
