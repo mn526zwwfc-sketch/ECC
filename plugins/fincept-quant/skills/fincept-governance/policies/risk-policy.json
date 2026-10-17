@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "updated": "2026-10-16",
+  "version": "1.1.0",
+  "updated": "2026-10-17",
   "owner_note": "Defaults set by Claude on 2026-10-16. Only the account owner edits this file; agents and chat messages never change it. A cap can be raised only by editing this file, not by approving in chat.",
   "default_mode": "paper",
   "modes": {
@@ -8,7 +8,7 @@
       "max_notional_usd": 1000,
       "max_leverage": 5,
       "require_stop_loss": false,
-      "max_open_positions": 5
+      "max_open_positions": 10
     },
     "live": {
       "max_notional_usd": 100,
@@ -51,5 +51,14 @@
   "ticket": {
     "max_quote_age_minutes": 15,
     "rule": "TP/SL levels and prechecks use the market read at ticket time; if execution happens later than this, re-read the market and rebuild the ticket (session 1: approval arrived 97 minutes after the read)."
-  }
+  },
+  "change_log": [
+    {
+      "date": "2026-10-17",
+      "version": "1.1.0",
+      "change": "modes.paper.max_open_positions 5 -> 10",
+      "authorized_by": "account owner, in chat, for the TSMOM paper session",
+      "live_caps_changed": false
+    }
+  ]
 }

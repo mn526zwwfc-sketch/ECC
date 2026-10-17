@@ -17,6 +17,16 @@ casebook case that now tests it. Newest first. Times in CDMX (UTC-6).
 - Status: open | fixed
 ```
 
+### 2026-10-17 - Policy change authorized by the owner
+
+- Agent: account owner (decision), main conversation (edit)
+- What happened: the owner chose, among 20, 10 or no change, to raise the paper open-position cap from 5 to 10 for the firm's time-series momentum session. Live caps are unchanged.
+- Evidence: chat answer "Subir a 10 en paper"; `policies/risk-policy.json` v1.1.0 `change_log`.
+- Root cause: the momentum basket has 13 liquid signals and the book already held 5 positions.
+- Change: `modes.paper.max_open_positions = 10`.
+- Test: precheck applies the new cap (open positions + new legs at most 10)
+- Status: fixed
+
 ### 2026-10-17 - Session 1 review (02:17 CDMX)
 
 - Agent: operations, main conversation
