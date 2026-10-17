@@ -17,6 +17,16 @@ casebook case that now tests it. Newest first. Times in CDMX (UTC-6).
 - Status: open | fixed
 ```
 
+### 2026-10-17 - Stale account-mode statement in prompts
+
+- Agent: fincept-liquid-trader (prompt), fincept-investment-playbook
+- What happened: during the universe scan the desk found its prompt saying "the account is LIVE" while the tools reported PAPER; it trusted the tools and flagged the contradiction.
+- Evidence: `paper_trading_status` ENABLED at 06:42 UTC against the agent file line 38 and playbook section 2.
+- Root cause: a dated fact about account state was written into prompts.
+- Change: both files now say to check the mode on every task and never rely on a remembered value.
+- Test: none yet (add a casebook case where the prompt and the tool disagree)
+- Status: fixed
+
 ### 2026-10-17 - Firm session 1 (paper)
 
 - Agent: whole firm (operations, desk, research, compliance, main conversation)
