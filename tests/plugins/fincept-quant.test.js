@@ -352,6 +352,61 @@ test('governance ships its SOPs, retraining log and train command', () => {
   for (const needle of ['fincept-grade.js', 'retraining-log.md', 'expected']) assert.ok(train.includes(needle), `fincept-train.md lacks ${needle}`);
 });
 
+test('precheck applies the risk policy by code', () => {
+  const { precheck } = require(path.join(pluginRoot, 'scripts', 'fincept-precheck.js'));
+  const policy = JSON.parse(fs.readFileSync(path.join(governanceRoot, 'policies', 'risk-policy.json'), 'utf8'));
+  const leg = { symbol: 'BTC', side: 'long', size: 100, leverage: 1, mark: 100, tp: 101.5, sl: 99, planned_hold_minutes: 60, spread_bps: 1, top_of_book_usd: 5000, atr_1h_pct: 1, quote_age_minutes: 1 };
+  const ok = precheck({ mode: 'paper', open_positions: 0, legs: [leg] }, policy);
+  assert.strictEqual(ok.decision, 'PROCEDER');
+  assert.strictEqual(ok.legs[0].risk_to_sl_usd, 1);
+  const thin = precheck({ mode: 'paper', open_positions: 0, legs: [{ ...leg, spread_bps: 51, top_of_book_usd: 60 }] }, policy);
+  assert.strictEqual(thin.decision, 'NO_EJECUTAR');
+  const wrongSide = precheck({ mode: 'paper', open_positions: 0, legs: [{ ...leg, sl: 102 }] }, policy);
+  assert.ok(wrongSide.legs[0].failures.some(f => /wrong side/.test(f)));
+  const shortHold = precheck({ mode: 'paper', open_positions: 0, legs: [{ ...leg, planned_hold_minutes: 10, tp: null, sl: null }] }, policy);
+  assert.ok(shortHold.legs[0].failures.some(f => /timed_exit/.test(f)));
+  const live = precheck({ mode: 'live', open_positions: 0, legs: [{ ...leg, sl: null }] }, policy);
+  assert.ok(live.legs[0].failures.some(f => /require_stop_loss/.test(f)));
+  const full = precheck({ mode: 'paper', open_positions: policy.modes.paper.max_open_positions - 1, legs: [leg, leg] }, policy);
+  assert.strictEqual(full.decision, 'PROCEDER_PARCIAL');
+  const stale = precheck({ mode: 'paper', open_positions: 0, legs: [{ ...leg, quote_age_minutes: 97 }] }, policy);
+  assert.ok(stale.legs[0].failures.some(f => /max_quote_age_minutes/.test(f)));
+  const lossDay = precheck({ mode: 'live', open_positions: 0, daily_realized_pnl_usd: -policy.modes.live.max_daily_loss_usd, legs: [{ ...leg, sl: 99 }] }, policy);
+  assert.strictEqual(lossDay.decision, 'NO_EJECUTAR');
+});
+
+test('journal reproduces the reconciled ASML trade from its fills', () => {
+  const { journal } = require(path.join(pluginRoot, 'scripts', 'fincept-journal.js'));
+  const history = { mode: 'paper', positions: [{
+    symbol: 'xyz:ASML', side: 'short', status: 'closed', openedAt: '2026-10-14T12:52:05.978Z', closedAt: '2026-10-14T13:49:54.280Z',
+    entrySize: '0.059', exitSize: '0.059', grossRealizedPnl: '-1.2449', feesComplete: true,
+    fills: [
+      { oid: 121118, portion: 'entry', size: '0.059', price: '1695.1', fee: '0.09501036' },
+      { oid: 121249, portion: 'exit', size: '0.059', price: '1716.2', fee: '0.09619301' }
+    ]
+  }] };
+  const out = journal(history, { 'xyz:ASML': { planned_hold_minutes: 10, reference_price: 1697.6 } });
+  const row = out.rows[0];
+  assert.strictEqual(row.gross_pnl_usd, -1.2449);
+  assert.strictEqual(row.net_pnl_usd, -1.436103);
+  assert.strictEqual(row.delay_minutes, 47.81);
+  assert.strictEqual(row.entry_time_cdmx, '2026-10-14 06:52:05');
+  assert.ok(row.entry_slippage_bps > 0, 'a short sold below the reference price is a cost');
+  assert.deepStrictEqual(row.issues, []);
+  assert.strictEqual(out.totals.losers, 1);
+});
+
+test('training mandate is paper-only and fits the risk policy', () => {
+  const mandate = JSON.parse(fs.readFileSync(path.join(governanceRoot, 'policies', 'training-mandate.json'), 'utf8'));
+  const policy = JSON.parse(fs.readFileSync(path.join(governanceRoot, 'policies', 'risk-policy.json'), 'utf8'));
+  assert.strictEqual(mandate.mode, 'paper');
+  assert.ok(mandate.per_trade.size_usd <= policy.modes.paper.max_notional_usd);
+  assert.ok(mandate.per_trade.leverage <= policy.modes.paper.max_leverage);
+  assert.ok(mandate.exits.inside_the_order);
+  assert.ok(mandate.max_trades_per_session <= policy.modes.paper.max_open_positions);
+  assert.ok(fs.existsSync(path.join(governanceRoot, 'sops', 'firm-cycle.md')));
+});
+
 console.log(`\nPassed: ${passed}`);
 console.log(`Failed: ${failed}`);
 process.exit(failed > 0 ? 1 : 0);

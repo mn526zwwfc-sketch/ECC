@@ -25,7 +25,7 @@ securities.
 | MCP server `fincept-quant` | `search_strategies`, `get_strategy`, `evaluate_decision`, `compare_strategies`, `breakeven_points`, `deflated_sharpe`, `haircut_sharpe`, `min_backtest_length`, `cost_drag`, `horizon_risk`, `kelly`, `repo_modules` |
 | Agents | `fincept-strategy-analyst` (what the evidence says, what fits a profile), `fincept-backtest-auditor` (overfitting, costs and decay in a backtest claim, including PBO and MinTRL on the user's data), `fincept-market-data` (prices from Yahoo Finance or the user's files, as clean return tables), `fincept-signals-analyst` (Congress and insider trades, lobbying, contracts, and what the evidence says about following them), `fincept-research-curator` (verified updates to the evidence base), `fincept-engine-developer` (changing the engine safely), `fincept-liquid-trader` (read-only pre-trade check of an order you name on your Liquid account), `fincept-compliance-officer` (risk-policy checks, anti-money-laundering red flags, guardrail review), `fincept-data-analyst` (reconciliation from fills, trade journal, PnL, cash flows), `fincept-client-communicator` (plain-language explanations and needs intake, every draft reviewed by a human) |
 | Skills | `fincept-investment-playbook` (shared by every agent: product map, data sources and limits, evidence, thresholds, guardrails, lessons learned), `fincept-governance` (role matrix, risk-policy caps, SOPs, casebook, training plan, retraining log), `quant-evidence-method`, `quant-stats-toolkit`, `fincept-engine-development` |
-| Commands | `/fincept-committee` (runs the agents in parallel and writes one memo), `/fincept-signals`, `/fincept-evaluate`, `/fincept-compare`, `/fincept-breakeven`, `/fincept-strategy`, `/fincept-trade` (one Liquid order: check, proposal, your approval, execution), `/fincept-train` (graded training round on the casebook) |
+| Commands | `/fincept-committee` (runs the agents in parallel and writes one memo), `/fincept-signals`, `/fincept-evaluate`, `/fincept-compare`, `/fincept-breakeven`, `/fincept-strategy`, `/fincept-trade` (one Liquid order: check, proposal, your approval, execution), `/fincept-train` (graded training round on the casebook), `/fincept-firm` (one paper-trading session of the whole firm) |
 | Hooks | SessionStart checks the engine path; PostToolUse reminds about the Python/JavaScript parity rule after engine edits; PreToolUse asks you before any Liquid tool that moves money or changes the account, denies those tools to subagents, and denies orders above the risk-policy caps |
 
 The MCP server is part of FinceptTerminal (`quant_evidence/mcp_server.py`).
@@ -70,6 +70,12 @@ none can execute. The caps live in
 `skills/fincept-governance/policies/risk-policy.json`: by default paper up to
 1,000 USD and 5x; live up to 100 USD, 2x, with a stop-loss. Approving in chat
 cannot lift a cap; only editing that file can.
+
+`/fincept-firm` runs the agents as an investment firm on the paper account:
+operations opens the book, research and the desk read the market, the desk
+writes a ticket under a fixed training mandate, `scripts/fincept-precheck.js`
+applies the risk policy by code, you approve the exact basket, and operations
+reconciles it with `scripts/fincept-journal.js`.
 
 `/fincept-train` runs the three-phase plan on a casebook built from real paper
 trades: strict simulation graded against the real fills, blind audits of the

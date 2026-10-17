@@ -62,7 +62,8 @@ minutes need TP/SL inside the order.
 
 ### 3. Knowledge base (garbage in, garbage out)
 
-- **SOPs** in `sops/`: `trade.md`, `reconciliation.md`, `compliance-review.md`, `communication.md`.
+- **SOPs** in `sops/`: `trade.md`, `reconciliation.md`, `compliance-review.md`, `communication.md`, `firm-cycle.md`.
+- **Training mandate**: `policies/training-mandate.json` (paper only, fixed in advance).
 - **Risk policy**: `policies/risk-policy.json` (when to say no).
 - **Casebook**: `casebook/cases.json`, built from the user's real paper trades (GOLD, Brent, ASML, the WTI review link) and stress scenarios, each with the expected decision, figures with tolerances and phrase checks.
 - **Evidence and data sources**: the `fincept-investment-playbook` skill.
@@ -95,6 +96,24 @@ Decisions: `PROCEDER`, `NO_EJECUTAR`, `ESCALAR`, `CONCILIADO`, `SIN_OPERACION`,
 - No subagent signs off: the user approves every action, and live trading needs the policy caps plus the user's explicit approval.
 - Every error goes into `retraining-log.md` the same day: what happened, the evidence (tool output), the root cause, the prompt or policy change, and the casebook case that now tests it.
 - A prompt change without a casebook case that would have caught the error is not done.
+
+### 7. Operating as a firm
+
+| Firm role | Who | Code it relies on |
+|-----------|-----|-------------------|
+| Comité de inversión | The account owner | Approves each basket's exact legs |
+| Dirección (CIO) | Main conversation | Runs the cycle, executes approved actions |
+| Investigación | `fincept-strategy-analyst`, `fincept-market-data`, `fincept-signals-analyst`, `fincept-backtest-auditor`, `fincept-research-curator` | Engine CLI, series CLI |
+| Mesa de operación | `fincept-liquid-trader` | `policies/training-mandate.json` |
+| Riesgo y cumplimiento | `fincept-compliance-officer` | `scripts/fincept-precheck.js`, the PreToolUse hook |
+| Operaciones | `fincept-data-analyst` | `scripts/fincept-journal.js` |
+| Relación con clientes | `fincept-client-communicator` | Communication SOP |
+| Ingeniería y QA | `fincept-engine-developer` | `scripts/fincept-grade.js`, the test suites |
+
+The session runs the ten steps in `sops/firm-cycle.md`. Training on paper
+follows `policies/training-mandate.json`, which fixes the universe, size,
+direction rule and ATR-based exits in advance so the firm is graded on
+process. Each session's results go into the retraining log.
 
 ## Examples
 

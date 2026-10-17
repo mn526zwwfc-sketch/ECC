@@ -17,6 +17,16 @@ casebook case that now tests it. Newest first. Times in CDMX (UTC-6).
 - Status: open | fixed
 ```
 
+### 2026-10-17 - Firm session 1 (paper)
+
+- Agent: whole firm (operations, desk, research, compliance, main conversation)
+- What happened: operations opened the book with `fincept-journal.js` (closed trades net -1.238 USD); the desk read 6 markets; the mandate rule gave 5 signals and ASML none; `fincept-precheck.js` passed 4 legs and dropped SP500 at the 5-position cap; compliance approved with a concentration warning (three correlated crypto shorts) and a weekend-liquidity warning. The owner approved the basket: BTC, ETH and SOL short and Brent long, 100 USD at 1x each, TP and SL inside the orders (orders 127079, 127085, 127082, 127088, all filled at 00:12 CDMX). The owner also approved TP 4152.7 and SL 4173.1 on the GOLD short, which had been unprotected since 2026-10-11.
+- Evidence: `execute_orders_batch` all_executed; `view_open_orders` shows 100% TP/SL coverage on all 5 positions.
+- Root cause and change, stale quotes: the approval arrived about 97 minutes after the market read, so TP/SL distances were measured from older prices (BTC entry 81549 against a ticket mark of 81495; its stop ended 0.42% away instead of 0.48%). New rule `ticket.max_quote_age_minutes = 15` in the risk policy, checked by `fincept-precheck.js` and the firm-cycle SOP.
+- Root cause and change, journal code: operations found that the totals left out open-position entry fees, counted a flat trade as a loser, had no gross total and summed fees in any token. All four fixed in `scripts/fincept-journal.js`.
+- Test: precheck test (stale quote), journal test
+- Status: fixed; the session's trades are still open and will be reconciled when they exit
+
 ### 2026-10-16 - Training round 1 results
 
 - Agent: fincept-data-analyst, fincept-compliance-officer, fincept-liquid-trader, fincept-client-communicator, fincept-signals-analyst
