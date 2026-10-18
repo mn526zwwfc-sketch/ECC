@@ -24,6 +24,15 @@ Curated skills and plugins from the connected repositories (ECC, Agent-Reach, gs
 
 ## Install
 
+One command installs all 15 skills into `~/.claude/skills/` (existing skill
+directories are skipped unless `--force`; add `--dry-run` to preview):
+
+```bash
+node scripts/install-recommended-skills.js
+```
+
+Or install each source separately:
+
 ```bash
 # ECC skills (installer also pulls their companion modules)
 ./install.sh --target claude --dry-run --skills strategic-compact,context-budget,search-first,verification-loop,tdd-workflow,git-workflow,skill-stocktake,python-patterns,python-testing,cpp-coding-standards,cpp-testing,llm-trading-agent-security,deep-research
