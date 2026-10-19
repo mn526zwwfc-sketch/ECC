@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-10-17",
+  "purpose": "Paper-only mandate for the firm's time-series momentum book, the best-supported family in the Fincept evidence base (tsmom_futures). Backtested with the Laboratorio engine on 24 Yahoo proxies of Liquid markets, 2000-03 to 2026-09: L6 net Sharpe 0.55, PSR 0.996, DSR 0.963, but PBO 0.657 (fails). Paper only; not eligible for live money.",
+  "mode": "paper",
+  "signal": {
+    "lookbacks_months": [3, 6, 9, 12],
+    "rule": "sign of the past L-month return per asset; trade only when at least 3 of the 4 lookbacks agree (consensus)",
+    "data": "monthly adjusted closes from quant_evidence.app.yahoo_sync, last complete month"
+  },
+  "per_trade": { "size_usd": 100, "leverage": 1, "order_type": "market" },
+  "selection_when_capped": "first legs where all 4 lookbacks agree, round-robin across asset classes (commodity, fx, index, stock), lowest 12-month volatility first within a class; then 3-of-4 legs the same way",
+  "exits": {
+    "stop_loss": "2 monthly standard deviations from entry (2 x vol_12m_ann / sqrt(12)), inside the order",
+    "take_profit": null,
+    "rebalance": "monthly, after the month closes; every change is a new proposal the owner approves"
+  },
+  "research_record": "skills/fincept-governance/research/2026-10-17-tsmom/"
+}

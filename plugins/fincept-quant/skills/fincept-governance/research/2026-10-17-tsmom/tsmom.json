@@ -1,0 +1,1082 @@
+{
+ "as_of_month": "2026-09",
+ "rule": "Per asset and lookback L in {3,6,9,12}: position = sign(return over past L months), held next month; equal weight across assets available that month; 10 bps charged on the asset slice per position change (entry or flip); no volatility scaling, no financing/carry; sample starts at the first month with >=5 assets under L12 so all variants share one sample.",
+ "sample": {
+  "start": "2000-03",
+  "end": "2026-09",
+  "months": 319,
+  "assets_per_month_min": 5,
+  "assets_per_month_max": 24,
+  "assets_first_month": 5,
+  "assets_last_month": 24,
+  "first_month_with_24_assets": "2020-08",
+  "sharpe_gross": {
+   "L3": 0.4554,
+   "L6": 0.5664,
+   "L9": 0.5576,
+   "L12": 0.5165
+  },
+  "sharpe_net_10bps_per_change": {
+   "L3": 0.4365,
+   "L6": 0.5536,
+   "L9": 0.5465,
+   "L12": 0.5077
+  },
+  "sharpe_net_10bps_x_abs_delta": {
+   "L3": 0.418,
+   "L6": 0.5412,
+   "L9": 0.5357,
+   "L12": 0.4993
+  },
+  "turnover_monthly_avg": {
+   "L3": 0.2505,
+   "L6": 0.1677,
+   "L9": 0.134,
+   "L12": 0.1124
+  },
+  "ann_mean_net": {
+   "L3": 0.06998,
+   "L6": 0.08913,
+   "L9": 0.08054,
+   "L12": 0.08023
+  }
+ },
+ "audit": {
+  "full_sample": {
+   "best_variant": "L6",
+   "variants": 4,
+   "n_trials": 4,
+   "months": 319,
+   "years": 26.583333333333332,
+   "sharpe_annual": 0.5536373273473523,
+   "vol_annual": 0.16099052798640648,
+   "cagr": 0.07865473022592528,
+   "max_drawdown": -0.48652828043853114,
+   "skew": -0.6103524436024453,
+   "kurtosis": 7.862764155963414,
+   "psr": 0.9961812322246457,
+   "min_track_record_years": 10.157998381988202,
+   "bootstrap_sharpe": {
+    "lo": 0.15989483221706272,
+    "median": 0.5750577181439104,
+    "hi": 1.0421450049056549,
+    "prob_le_zero": 0.0015,
+    "block": 7,
+    "resamples": 2000
+   },
+   "pbo": {
+    "pbo": 0.6566433566433566,
+    "splits": 12870,
+    "blocks": 16,
+    "block_length": 19,
+    "dropped_rows": 15,
+    "variants": 4,
+    "prob_oos_loss": 0.007381507381507382,
+    "degradation_slope": -0.8001683339723159,
+    "is_sharpe_mean": 0.21349965791478986,
+    "oos_sharpe_mean": 0.14310474376055854
+   },
+   "evaluate_inputs": {
+    "sharpe_annual": 0.5536373273473523,
+    "years": 26.583333333333332,
+    "n_trials": 4,
+    "periods_per_year": 12,
+    "skew": -0.6103524436024453,
+    "kurtosis": 7.862764155963414,
+    "volatility_annual": 0.16099052798640648,
+    "var_trials_sr": 0.0028785908394178376
+   }
+  },
+  "subsample_all_24_assets": {
+   "best_variant": "L6",
+   "variants": 4,
+   "n_trials": 4,
+   "months": 74,
+   "years": 6.166666666666667,
+   "sharpe_annual": 0.956556185899665,
+   "vol_annual": 0.17434901427275018,
+   "cagr": 0.163336859363733,
+   "max_drawdown": -0.20809215137285275,
+   "skew": 0.6576087205181835,
+   "kurtosis": 3.83810504867132,
+   "psr": 0.9942278894307598,
+   "min_track_record_years": 2.663249368511042,
+   "bootstrap_sharpe": {
+    "lo": 0.038210548505229716,
+    "median": 0.9625169795643119,
+    "hi": 1.874332641517119,
+    "prob_le_zero": 0.022,
+    "block": 4,
+    "resamples": 2000
+   },
+   "pbo": {
+    "pbo": 0.7644133644133644,
+    "splits": 12870,
+    "blocks": 16,
+    "block_length": 4,
+    "dropped_rows": 10,
+    "variants": 4,
+    "prob_oos_loss": 0.3146076146076146,
+    "degradation_slope": -0.7887699642415335,
+    "is_sharpe_mean": 0.19169404240251106,
+    "oos_sharpe_mean": 0.060791946097705364
+   },
+   "evaluate_inputs": {
+    "sharpe_annual": 0.956556185899665,
+    "years": 6.166666666666667,
+    "n_trials": 4,
+    "periods_per_year": 12,
+    "skew": 0.6576087205181835,
+    "kurtosis": 3.83810504867132,
+    "volatility_annual": 0.17434901427275018,
+    "var_trials_sr": 0.04937785813259257
+   }
+  },
+  "columns_tested": [
+   "L3",
+   "L6",
+   "L9",
+   "L12"
+  ]
+ },
+ "evaluate": {
+  "requested": {
+   "inputs": {
+    "strategy_id": "tsmom_futures",
+    "has_backtest": true,
+    "sharpe_annual": 0.5536373273473523,
+    "years": 26.583333333333332,
+    "n_trials": 4,
+    "periods_per_year": 12,
+    "skew": 0.0,
+    "kurtosis": 3.0,
+    "var_trials_sr": null,
+    "gross_alpha_monthly_bps": null,
+    "volatility_annual": 0.15,
+    "turnover_monthly": 0.3,
+    "roundtrip_cost_bps": 40.0,
+    "long_short": true,
+    "uses_leverage": true,
+    "microcap_share": 0.05,
+    "published": true,
+    "out_of_sample": false,
+    "live_months": 0.0,
+    "investor": "retail",
+    "market": "global",
+    "horizon_years": 10.0,
+    "kelly_multiple": null
+   },
+   "stats": {
+    "t_stat": 2.8545002274786775,
+    "p_value": 0.004310460083749702,
+    "p_adjusted": 0.017241840334998808,
+    "t_adjusted": 2.3815096217245566,
+    "sharpe_haircut": 0.46189963809818485,
+    "haircut_pct": 0.16569997129476632,
+    "dsr": 0.9631255174778639,
+    "sr0_annual": 0.20406180487146713,
+    "n_obs": 319,
+    "var_trials_sr_annual": 0.03761755485893417,
+    "min_backtest_years": 3.6114545796251747,
+    "max_trials_for_length": 263,
+    "bonferroni_t_threshold": 2.4977054744123723
+   },
+   "cascade": [
+    {
+     "stage": "Bruto",
+     "monthly_bps": 69.20466591841902,
+     "note": "Sharpe 0.55 × volatilidad 15% / 12"
+    },
+    {
+     "stage": "Tras pruebas múltiples",
+     "monthly_bps": 57.737454762273096,
+     "note": "× 0.83 (Sharpe con recorte / Sharpe original)"
+    },
+    {
+     "stage": "Tras publicación",
+     "monthly_bps": 24.249731000154704,
+     "note": "× 0.42 (−58% después de publicarse)"
+    },
+    {
+     "stage": "Sin microcaps",
+     "monthly_bps": 23.037244450146968,
+     "note": "× 0.95 (parte del alfa en microcaps, no capturable a costos realistas)"
+    },
+    {
+     "stage": "Neto de costos",
+     "monthly_bps": -0.962755549853032,
+     "note": "− 24.0 pb: rotación 30% × 40 pb ida y vuelta × 2 patas"
+    }
+   ],
+   "net_monthly_bps": -0.962755549853032,
+   "scores": {
+    "prior": 38.0,
+    "statistical": 100.0,
+    "implementability": 32.5,
+    "context": 66.66666666666667,
+    "final": 29.0
+   },
+   "caps": [
+    "La ventaja neta esperada es nula o negativa: el puntaje se limita a 29."
+   ],
+   "verdict": {
+    "code": "no_respaldada",
+    "label": "No respaldada por la evidencia",
+    "summary": "No respaldada por la evidencia (29/100). 3 chequeo(s) en rojo y 3 con advertencia. Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40."
+   },
+   "checks": [
+    {
+     "id": "evidence",
+     "status": "warn",
+     "detail": "Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40. (valoración sintética: 38/100)"
+    },
+    {
+     "id": "t3",
+     "status": "warn",
+     "detail": "t = 2.85 con 4 prueba(s); el mejor de 4 debe superar t = 2.50 (Bonferroni, 5%)."
+    },
+    {
+     "id": "haircut",
+     "status": "pass",
+     "detail": "Sharpe 0.55 → 0.46 tras ajustar por 4 prueba(s) (recorte de 17%)."
+    },
+    {
+     "id": "dsr",
+     "status": "pass",
+     "detail": "DSR = 0.963: probabilidad de que el Sharpe verdadero sea positivo descontando 4 intento(s), asimetría 0.0 y curtosis 3.0. Sharpe esperable del mejor intento sin habilidad: 0.20."
+    },
+    {
+     "id": "minbtl",
+     "status": "pass",
+     "detail": "Con 4 configuración(es) hacen falta 3.6 años para un Sharpe de 0.55; hay 26.6. Con esa longitud no deberían probarse más de 263 configuraciones."
+    },
+    {
+     "id": "net_edge",
+     "status": "fail",
+     "detail": "-1.0 pb mensuales (-0.12% anual) tras la cascada. Referencias: la anomalía promedio deja 4 pb y las combinaciones unos 20 pb."
+    },
+    {
+     "id": "turnover",
+     "status": "pass",
+     "detail": "Rotación de 30% mensual. Las estrategias con menos de 50% suelen seguir siendo rentables después de costos; las de mayor rotación generalmente no."
+    },
+    {
+     "id": "decay",
+     "status": "warn",
+     "detail": "Si la idea viene de un paper, libro o internet, supón que rinde la mitad o menos en adelante (−26% fuera de muestra, −58% tras publicarse)."
+    },
+    {
+     "id": "access",
+     "status": "fail",
+     "detail": "Requiere ventas en corto y apalancamiento. Los papers modelan costos de un gran fondo, no de una cuenta minorista; el préstamo de títulos es caro justo donde vive la señal."
+    },
+    {
+     "id": "horizon",
+     "status": "pass",
+     "detail": "A 10 años, asegurarse contra rendir menos que la tasa libre de riesgo costaría 18.7% de lo invertido (Bodie, σ = 15%). El plazo baja la probabilidad de perder, no el tamaño de la pérdida: 12% de probabilidad de pérdida real a 30 años en 39 países desarrollados."
+    },
+    {
+     "id": "live",
+     "status": "fail",
+     "detail": "0 meses operando en vivo. El único out-of-sample verdadero es operar en vivo."
+    }
+   ]
+  },
+  "with_series_moments": {
+   "inputs": {
+    "strategy_id": "tsmom_futures",
+    "has_backtest": true,
+    "sharpe_annual": 0.5536373273473523,
+    "years": 26.583333333333332,
+    "n_trials": 4,
+    "periods_per_year": 12,
+    "skew": -0.6103524436024453,
+    "kurtosis": 7.862764155963414,
+    "var_trials_sr": 0.0028785908394178376,
+    "gross_alpha_monthly_bps": null,
+    "volatility_annual": 0.16099052798640648,
+    "turnover_monthly": 0.3,
+    "roundtrip_cost_bps": 40.0,
+    "long_short": true,
+    "uses_leverage": true,
+    "microcap_share": 0.05,
+    "published": true,
+    "out_of_sample": false,
+    "live_months": 0.0,
+    "investor": "retail",
+    "market": "global",
+    "horizon_years": 10.0,
+    "kelly_multiple": null
+   },
+   "stats": {
+    "t_stat": 2.8545002274786775,
+    "p_value": 0.004310460083749702,
+    "p_adjusted": 0.017241840334998808,
+    "t_adjusted": 2.3815096217245566,
+    "sharpe_haircut": 0.46189963809818485,
+    "haircut_pct": 0.16569997129476632,
+    "dsr": 0.9917054190197458,
+    "sr0_annual": 0.05644902064027499,
+    "n_obs": 319,
+    "var_trials_sr_annual": 0.0028785908394178376,
+    "min_backtest_years": 3.6114545796251747,
+    "max_trials_for_length": 263,
+    "bonferroni_t_threshold": 2.4977054744123723
+   },
+   "cascade": [
+    {
+     "stage": "Bruto",
+     "monthly_bps": 74.27530470219433,
+     "note": "Sharpe 0.55 × volatilidad 16% / 12"
+    },
+    {
+     "stage": "Tras pruebas múltiples",
+     "monthly_bps": 61.96788884513071,
+     "note": "× 0.83 (Sharpe con recorte / Sharpe original)"
+    },
+    {
+     "stage": "Tras publicación",
+     "monthly_bps": 26.0265133149549,
+     "note": "× 0.42 (−58% después de publicarse)"
+    },
+    {
+     "stage": "Sin microcaps",
+     "monthly_bps": 24.725187649207154,
+     "note": "× 0.95 (parte del alfa en microcaps, no capturable a costos realistas)"
+    },
+    {
+     "stage": "Neto de costos",
+     "monthly_bps": 0.7251876492071538,
+     "note": "− 24.0 pb: rotación 30% × 40 pb ida y vuelta × 2 patas"
+    }
+   ],
+   "net_monthly_bps": 0.7251876492071538,
+   "scores": {
+    "prior": 38.0,
+    "statistical": 100.0,
+    "implementability": 34.312969123017886,
+    "context": 66.66666666666667,
+    "final": 56.87824228075447
+   },
+   "caps": [],
+   "verdict": {
+    "code": "condicionada",
+    "label": "Condicionada: depende de supuestos",
+    "summary": "Condicionada: depende de supuestos (56/100). 2 chequeo(s) en rojo y 4 con advertencia. Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40."
+   },
+   "checks": [
+    {
+     "id": "evidence",
+     "status": "warn",
+     "detail": "Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40. (valoración sintética: 38/100)"
+    },
+    {
+     "id": "t3",
+     "status": "warn",
+     "detail": "t = 2.85 con 4 prueba(s); el mejor de 4 debe superar t = 2.50 (Bonferroni, 5%)."
+    },
+    {
+     "id": "haircut",
+     "status": "pass",
+     "detail": "Sharpe 0.55 → 0.46 tras ajustar por 4 prueba(s) (recorte de 17%)."
+    },
+    {
+     "id": "dsr",
+     "status": "pass",
+     "detail": "DSR = 0.992: probabilidad de que el Sharpe verdadero sea positivo descontando 4 intento(s), asimetría -0.6 y curtosis 7.9. Sharpe esperable del mejor intento sin habilidad: 0.06."
+    },
+    {
+     "id": "minbtl",
+     "status": "pass",
+     "detail": "Con 4 configuración(es) hacen falta 3.6 años para un Sharpe de 0.55; hay 26.6. Con esa longitud no deberían probarse más de 263 configuraciones."
+    },
+    {
+     "id": "net_edge",
+     "status": "warn",
+     "detail": "0.7 pb mensuales (0.09% anual) tras la cascada. Referencias: la anomalía promedio deja 4 pb y las combinaciones unos 20 pb."
+    },
+    {
+     "id": "turnover",
+     "status": "pass",
+     "detail": "Rotación de 30% mensual. Las estrategias con menos de 50% suelen seguir siendo rentables después de costos; las de mayor rotación generalmente no."
+    },
+    {
+     "id": "decay",
+     "status": "warn",
+     "detail": "Si la idea viene de un paper, libro o internet, supón que rinde la mitad o menos en adelante (−26% fuera de muestra, −58% tras publicarse)."
+    },
+    {
+     "id": "access",
+     "status": "fail",
+     "detail": "Requiere ventas en corto y apalancamiento. Los papers modelan costos de un gran fondo, no de una cuenta minorista; el préstamo de títulos es caro justo donde vive la señal."
+    },
+    {
+     "id": "horizon",
+     "status": "pass",
+     "detail": "A 10 años, asegurarse contra rendir menos que la tasa libre de riesgo costaría 20.1% de lo invertido (Bodie, σ = 16%). El plazo baja la probabilidad de perder, no el tamaño de la pérdida: 12% de probabilidad de pérdida real a 30 años en 39 países desarrollados."
+    },
+    {
+     "id": "live",
+     "status": "fail",
+     "detail": "0 meses operando en vivo. El único out-of-sample verdadero es operar en vivo."
+    }
+   ]
+  },
+  "with_measured_turnover_10bps": {
+   "inputs": {
+    "strategy_id": "tsmom_futures",
+    "has_backtest": true,
+    "sharpe_annual": 0.5536373273473523,
+    "years": 26.583333333333332,
+    "n_trials": 4,
+    "periods_per_year": 12,
+    "skew": -0.6103524436024453,
+    "kurtosis": 7.862764155963414,
+    "var_trials_sr": 0.0028785908394178376,
+    "gross_alpha_monthly_bps": null,
+    "volatility_annual": 0.16099052798640648,
+    "turnover_monthly": 0.1677,
+    "roundtrip_cost_bps": 10.0,
+    "long_short": true,
+    "uses_leverage": true,
+    "microcap_share": 0.05,
+    "published": true,
+    "out_of_sample": false,
+    "live_months": 0.0,
+    "investor": "retail",
+    "market": "global",
+    "horizon_years": 10.0,
+    "kelly_multiple": null
+   },
+   "stats": {
+    "t_stat": 2.8545002274786775,
+    "p_value": 0.004310460083749702,
+    "p_adjusted": 0.017241840334998808,
+    "t_adjusted": 2.3815096217245566,
+    "sharpe_haircut": 0.46189963809818485,
+    "haircut_pct": 0.16569997129476632,
+    "dsr": 0.9917054190197458,
+    "sr0_annual": 0.05644902064027499,
+    "n_obs": 319,
+    "var_trials_sr_annual": 0.0028785908394178376,
+    "min_backtest_years": 3.6114545796251747,
+    "max_trials_for_length": 263,
+    "bonferroni_t_threshold": 2.4977054744123723
+   },
+   "cascade": [
+    {
+     "stage": "Bruto",
+     "monthly_bps": 74.27530470219433,
+     "note": "Sharpe 0.55 × volatilidad 16% / 12"
+    },
+    {
+     "stage": "Tras pruebas múltiples",
+     "monthly_bps": 61.96788884513071,
+     "note": "× 0.83 (Sharpe con recorte / Sharpe original)"
+    },
+    {
+     "stage": "Tras publicación",
+     "monthly_bps": 26.0265133149549,
+     "note": "× 0.42 (−58% después de publicarse)"
+    },
+    {
+     "stage": "Sin microcaps",
+     "monthly_bps": 24.725187649207154,
+     "note": "× 0.95 (parte del alfa en microcaps, no capturable a costos realistas)"
+    },
+    {
+     "stage": "Neto de costos",
+     "monthly_bps": 21.371187649207155,
+     "note": "− 3.4 pb: rotación 17% × 10 pb ida y vuelta × 2 patas"
+    }
+   ],
+   "net_monthly_bps": 21.371187649207155,
+   "scores": {
+    "prior": 38.0,
+    "statistical": 100.0,
+    "implementability": 82.5,
+    "context": 66.66666666666667,
+    "final": 68.925
+   },
+   "caps": [],
+   "verdict": {
+    "code": "condicionada",
+    "label": "Condicionada: depende de supuestos",
+    "summary": "Condicionada: depende de supuestos (68/100). 2 chequeo(s) en rojo y 3 con advertencia. Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40."
+   },
+   "checks": [
+    {
+     "id": "evidence",
+     "status": "warn",
+     "detail": "Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40. (valoración sintética: 38/100)"
+    },
+    {
+     "id": "t3",
+     "status": "warn",
+     "detail": "t = 2.85 con 4 prueba(s); el mejor de 4 debe superar t = 2.50 (Bonferroni, 5%)."
+    },
+    {
+     "id": "haircut",
+     "status": "pass",
+     "detail": "Sharpe 0.55 → 0.46 tras ajustar por 4 prueba(s) (recorte de 17%)."
+    },
+    {
+     "id": "dsr",
+     "status": "pass",
+     "detail": "DSR = 0.992: probabilidad de que el Sharpe verdadero sea positivo descontando 4 intento(s), asimetría -0.6 y curtosis 7.9. Sharpe esperable del mejor intento sin habilidad: 0.06."
+    },
+    {
+     "id": "minbtl",
+     "status": "pass",
+     "detail": "Con 4 configuración(es) hacen falta 3.6 años para un Sharpe de 0.55; hay 26.6. Con esa longitud no deberían probarse más de 263 configuraciones."
+    },
+    {
+     "id": "net_edge",
+     "status": "pass",
+     "detail": "21.4 pb mensuales (2.56% anual) tras la cascada. Referencias: la anomalía promedio deja 4 pb y las combinaciones unos 20 pb."
+    },
+    {
+     "id": "turnover",
+     "status": "pass",
+     "detail": "Rotación de 17% mensual. Las estrategias con menos de 50% suelen seguir siendo rentables después de costos; las de mayor rotación generalmente no."
+    },
+    {
+     "id": "decay",
+     "status": "warn",
+     "detail": "Si la idea viene de un paper, libro o internet, supón que rinde la mitad o menos en adelante (−26% fuera de muestra, −58% tras publicarse)."
+    },
+    {
+     "id": "access",
+     "status": "fail",
+     "detail": "Requiere ventas en corto y apalancamiento. Los papers modelan costos de un gran fondo, no de una cuenta minorista; el préstamo de títulos es caro justo donde vive la señal."
+    },
+    {
+     "id": "horizon",
+     "status": "pass",
+     "detail": "A 10 años, asegurarse contra rendir menos que la tasa libre de riesgo costaría 20.1% de lo invertido (Bodie, σ = 16%). El plazo baja la probabilidad de perder, no el tamaño de la pérdida: 12% de probabilidad de pérdida real a 30 años en 39 países desarrollados."
+    },
+    {
+     "id": "live",
+     "status": "fail",
+     "detail": "0 meses operando en vivo. El único out-of-sample verdadero es operar en vivo."
+    }
+   ]
+  },
+  "breakeven_measured_turnover_10bps": {
+   "applicable": true,
+   "strategy_id": "tsmom_futures",
+   "net_monthly_bps": 21.371187649207155,
+   "current_roundtrip_cost_bps": 10.0,
+   "breakeven_roundtrip_cost_bps": 74,
+   "current_turnover_monthly": 0.1677,
+   "breakeven_turnover_monthly_pct": 125,
+   "search_range": {
+    "roundtrip_cost_bps": [
+     0,
+     300,
+     1
+    ],
+    "turnover_monthly_pct": [
+     0,
+     300,
+     5
+    ]
+   },
+   "note": "null = the edge survives the whole tested range (0-300 bps, 0-300% monthly turnover); 0 = there is no edge even without costs. Cost is resolved to 1 bp and turnover to 5 points."
+  },
+  "note": "The audited series is already net of 10 bps per change. The requested run and the moments run use the engine defaults for tsmom_futures (turnover 0.30, 40 bps round trip, 2 legs), so they charge costs a second time; the measured-turnover run passes the L6 turnover from the backtest (0.1677) and 10 bps."
+ },
+ "strategy_evidence": {
+  "id": "tsmom_futures",
+  "name": "Time-series momentum en futuros diversificados",
+  "claim": "Los últimos doce meses predicen el siguiente en muchos mercados.",
+  "key_figure": "Alfa de 1.58% mensual (t = 7.99) en 58 futuros; Sharpe neto de comisiones de 0.77 en 67 mercados desde 1880.",
+  "critique": "Poca evidencia activo por activo; t conjunto de 4.34 contra valores críticos bootstrap de 12.53 y 4.83; buena parte es escalado por volatilidad y posición neta larga.",
+  "survives": "Diversificador institucional; positivo en 8 de las 10 mayores caídas de una 60/40.",
+  "evidence": {
+   "gross_monthly_bps": 158,
+   "net_monthly_bps": null,
+   "typical_turnover_monthly": 0.3,
+   "requires_short": true,
+   "requires_leverage": true,
+   "microcap_dependence": "baja",
+   "oos_retention": 0.42,
+   "realtime_sharpe": null
+  },
+  "prior": {
+   "score": 38,
+   "rationale": "Historia larga y amplia, mecanismo en disputa, requiere futuros y apalancamiento."
+  },
+  "sources": [
+   {
+    "label": "Moskowitz, Ooi y Pedersen, JFE 2012",
+    "url": "https://w4.stern.nyu.edu/facdir/lpederse/papers/TimeSeriesMomentum.pdf"
+   },
+   {
+    "label": "Hurst, Ooi y Pedersen 2014",
+    "url": "https://www.trendfollowing.com/whitepaper/Century_Evidence_Trend_Following.pdf"
+   },
+   {
+    "label": "Huang, Li, Wang y Zhou, JFE 2020",
+    "url": "https://www.sciencedirect.com/science/article/abs/pii/S0304405X19301953"
+   }
+  ]
+ },
+ "signals": [
+  {
+   "yahoo": "BTC-USD",
+   "L3": 1,
+   "L6": 1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": 0,
+   "vol_12m_ann": 0.4564
+  },
+  {
+   "yahoo": "ETH-USD",
+   "L3": 1,
+   "L6": 1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": 0,
+   "vol_12m_ann": 0.6061
+  },
+  {
+   "yahoo": "SOL-USD",
+   "L3": 1,
+   "L6": 1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": 0,
+   "vol_12m_ann": 0.6803
+  },
+  {
+   "yahoo": "GC=F",
+   "L3": 1,
+   "L6": -1,
+   "L9": -1,
+   "L12": 1,
+   "consensus": 0,
+   "vol_12m_ann": 0.2666
+  },
+  {
+   "yahoo": "SI=F",
+   "L3": 1,
+   "L6": -1,
+   "L9": -1,
+   "L12": 1,
+   "consensus": 0,
+   "vol_12m_ann": 0.5142
+  },
+  {
+   "yahoo": "CL=F",
+   "L3": 1,
+   "L6": -1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.6457
+  },
+  {
+   "yahoo": "BZ=F",
+   "L3": 1,
+   "L6": -1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.7752
+  },
+  {
+   "yahoo": "NG=F",
+   "L3": -1,
+   "L6": 1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": -1,
+   "vol_12m_ann": 0.6346
+  },
+  {
+   "yahoo": "HG=F",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.1524
+  },
+  {
+   "yahoo": "^GSPC",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.1321
+  },
+  {
+   "yahoo": "^NDX",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.2187
+  },
+  {
+   "yahoo": "^DJI",
+   "L3": -1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.1126
+  },
+  {
+   "yahoo": "^N225",
+   "L3": -1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.3221
+  },
+  {
+   "yahoo": "EURUSD=X",
+   "L3": -1,
+   "L6": -1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": -1,
+   "vol_12m_ann": 0.0532
+  },
+  {
+   "yahoo": "JPY=X",
+   "L3": -1,
+   "L6": -1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 0,
+   "vol_12m_ann": 0.0546
+  },
+  {
+   "yahoo": "GBPUSD=X",
+   "L3": -1,
+   "L6": 1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": -1,
+   "vol_12m_ann": 0.0607
+  },
+  {
+   "yahoo": "NVDA",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.2673
+  },
+  {
+   "yahoo": "AAPL",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.2165
+  },
+  {
+   "yahoo": "MSFT",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": -1,
+   "consensus": 1,
+   "vol_12m_ann": 0.3982
+  },
+  {
+   "yahoo": "TSLA",
+   "L3": -1,
+   "L6": -1,
+   "L9": -1,
+   "L12": -1,
+   "consensus": -1,
+   "vol_12m_ann": 0.3913
+  },
+  {
+   "yahoo": "AMZN",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.391
+  },
+  {
+   "yahoo": "META",
+   "L3": 1,
+   "L6": 1,
+   "L9": 1,
+   "L12": -1,
+   "consensus": 1,
+   "vol_12m_ann": 0.3829
+  },
+  {
+   "yahoo": "GOOGL",
+   "L3": -1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.4277
+  },
+  {
+   "yahoo": "ASML",
+   "L3": -1,
+   "L6": 1,
+   "L9": 1,
+   "L12": 1,
+   "consensus": 1,
+   "vol_12m_ann": 0.4637
+  }
+ ],
+ "signal_counts": {
+  "long": 14,
+  "short": 4,
+  "no_consensus": 6
+ },
+ "failures": [],
+ "data_quality": [
+  "yahoo_sync default run (range=max, interval=1mo): 24/24 symbols OK, no failures.",
+  "AAPL, MSFT, ^GSPC, ^N225, ^NDX came back quarterly from range=max (Yahoo downsampling); re-fetched with the same yahoo_sync parser at range=25y monthly (2001-11 onward, no gaps).",
+  "All =F futures monthly bars skip about 1 month in 7 (e.g. 2024-12, 2025-06, 2026-02/03 missing); re-fetched as daily (range=25y) and reduced to the last close of each month by the yahoo_sync parser; no gaps.",
+  "=F series are Yahoo front-month continuations without roll adjustment: returns include roll jumps.",
+  "Equity index proxies (^GSPC, ^NDX, ^DJI, ^N225) are spot price indices, not futures: no dividends, no financing; ^N225 is in JPY. FX spot (EURUSD=X, GBPUSD=X, JPY=X = USD/JPY) ignores carry.",
+  "Crypto history is short: BTC from 2014-10, ETH from 2017-11, SOL from 2020-04; all 24 assets only from 2020-08. The first months of the sample hold only 5 equity/FX names (^DJI, ASML, JPY=X, AMZN, NVDA); futures enter from 2002-11.",
+  "Single stocks (NVDA, AAPL, ...) are not in the classic TSMOM universe; Liquid trades them as perpetuals."
+ ],
+ "data_meta": {
+  "BTC-USD": {
+   "source_dir": "prices",
+   "first": "2014-10",
+   "last": "2026-09",
+   "months": 144,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "ETH-USD": {
+   "source_dir": "prices",
+   "first": "2017-11",
+   "last": "2026-09",
+   "months": 107,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "SOL-USD": {
+   "source_dir": "prices",
+   "first": "2020-04",
+   "last": "2026-09",
+   "months": 78,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "GC=F": {
+   "source_dir": "refetch_daily",
+   "first": "2001-10",
+   "last": "2026-09",
+   "months": 300,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "SI=F": {
+   "source_dir": "refetch_daily",
+   "first": "2001-10",
+   "last": "2026-09",
+   "months": 300,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "CL=F": {
+   "source_dir": "refetch_daily",
+   "first": "2001-10",
+   "last": "2026-09",
+   "months": 300,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "BZ=F": {
+   "source_dir": "refetch_daily",
+   "first": "2007-07",
+   "last": "2026-09",
+   "months": 231,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "NG=F": {
+   "source_dir": "refetch_daily",
+   "first": "2001-10",
+   "last": "2026-09",
+   "months": 300,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "HG=F": {
+   "source_dir": "refetch_daily",
+   "first": "2001-10",
+   "last": "2026-09",
+   "months": 300,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "^GSPC": {
+   "source_dir": "refetch",
+   "first": "2001-11",
+   "last": "2026-09",
+   "months": 299,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "^NDX": {
+   "source_dir": "refetch",
+   "first": "2001-11",
+   "last": "2026-09",
+   "months": 299,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "^DJI": {
+   "source_dir": "prices",
+   "first": "1992-02",
+   "last": "2026-09",
+   "months": 416,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "^N225": {
+   "source_dir": "refetch",
+   "first": "2001-11",
+   "last": "2026-09",
+   "months": 299,
+   "gaps": 0,
+   "currency": "JPY",
+   "adjusted": true
+  },
+  "EURUSD=X": {
+   "source_dir": "prices",
+   "first": "2003-12",
+   "last": "2026-09",
+   "months": 274,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "JPY=X": {
+   "source_dir": "prices",
+   "first": "1996-11",
+   "last": "2026-09",
+   "months": 359,
+   "gaps": 0,
+   "currency": "JPY",
+   "adjusted": true
+  },
+  "GBPUSD=X": {
+   "source_dir": "prices",
+   "first": "2003-12",
+   "last": "2026-09",
+   "months": 274,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "NVDA": {
+   "source_dir": "prices",
+   "first": "1999-02",
+   "last": "2026-09",
+   "months": 332,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "AAPL": {
+   "source_dir": "refetch",
+   "first": "2001-11",
+   "last": "2026-09",
+   "months": 299,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "MSFT": {
+   "source_dir": "refetch",
+   "first": "2001-11",
+   "last": "2026-09",
+   "months": 299,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "TSLA": {
+   "source_dir": "prices",
+   "first": "2010-07",
+   "last": "2026-09",
+   "months": 195,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "AMZN": {
+   "source_dir": "prices",
+   "first": "1997-06",
+   "last": "2026-09",
+   "months": 352,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "META": {
+   "source_dir": "prices",
+   "first": "2012-06",
+   "last": "2026-09",
+   "months": 172,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "GOOGL": {
+   "source_dir": "prices",
+   "first": "2004-09",
+   "last": "2026-09",
+   "months": 265,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  },
+  "ASML": {
+   "source_dir": "prices",
+   "first": "1995-04",
+   "last": "2026-09",
+   "months": 378,
+   "gaps": 0,
+   "currency": "USD",
+   "adjusted": true
+  }
+ },
+ "files": {
+  "csv": "/tmp/claude-0/-home-user/1a5d964d-7d41-57b2-8401-8687f9562164/scratchpad/firm/tsmom_returns.csv",
+  "csv_24_assets": "/tmp/claude-0/-home-user/1a5d964d-7d41-57b2-8401-8687f9562164/scratchpad/firm/tsmom_returns_24assets.csv",
+  "build_script": "/tmp/claude-0/-home-user/1a5d964d-7d41-57b2-8401-8687f9562164/scratchpad/firm/tsmom_build.py",
+  "assemble_script": "/tmp/claude-0/-home-user/1a5d964d-7d41-57b2-8401-8687f9562164/scratchpad/firm/tsmom_assemble.py"
+ }
+}

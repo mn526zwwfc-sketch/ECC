@@ -1,0 +1,17 @@
+{
+  "name": "fincept-quant",
+  "version": "0.1.0",
+  "description": "FinceptTerminal quant-evidence engine for Claude Code - evidence on 44 quant strategies, a 0-100 decision evaluator, Deflated Sharpe, multiple-testing haircuts, cost break-evens and Kelly, as MCP tools, agents, skills and commands. Educational, not financial advice.",
+  "author": {
+    "name": "Fincept quant-evidence contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "finance",
+    "quant",
+    "backtesting",
+    "deflated-sharpe",
+    "mcp",
+    "fincept"
+  ]
+}

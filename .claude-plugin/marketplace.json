@@ -42,6 +42,21 @@
         "best-practices"
       ],
       "strict": false
+    },
+    {
+      "name": "fincept-quant",
+      "source": "./plugins/fincept-quant",
+      "description": "FinceptTerminal quant-evidence engine - evidence on 44 quant strategies, a 0-100 decision evaluator, Deflated Sharpe, multiple-testing haircuts, cost break-evens and Kelly as MCP tools, agents, skills and commands. Educational, not financial advice.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "keywords": [
+        "finance",
+        "quant",
+        "backtesting",
+        "mcp"
+      ],
+      "category": "finance",
+      "strict": true
     }
   ]
 }
